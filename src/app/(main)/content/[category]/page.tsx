@@ -21,7 +21,7 @@ interface CategoryPageProps {
 const MOCK_USER_ID = 'local-user';
 
 export default function CategoryPage({ params }: CategoryPageProps) {
-  const { category } = params;
+  const { category } = use(params);
   const firestore = useFirestore();
 
   // Since we are not using Firebase Auth, we use a constant user ID.
