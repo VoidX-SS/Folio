@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect } from 'react';
 import { mockData as initialMockData } from '@/lib/mock-data';
 import type { CategorySlug, ContentItem } from '@/lib/types';
 import { categories } from '@/lib/types';
@@ -14,10 +14,7 @@ interface CategoryPageProps {
 }
 
 export default function CategoryPage({ params }: CategoryPageProps) {
-  // Although this is a client component, Next.js can pass params as a promise.
-  // Using React.use() is the modern way to handle this.
-  const resolvedParams = use(Promise.resolve(params));
-  const { category } = resolvedParams;
+  const { category } = params;
   const [items, setItems] = useState<ContentItem[]>([]);
 
   useEffect(() => {
