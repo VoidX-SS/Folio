@@ -1,11 +1,16 @@
 'use client';
 import { useState, useEffect, use } from 'react';
-import { mockData as initialMockData } from '@/lib/mock-data';
-import type { CategorySlug, ContentItem } from '@/lib/types';
+import type { CategorySlug } from '@/lib/types';
 import { categories } from '@/lib/types';
 import { PageHeader } from '@/components/page-header';
 import { ContentCard } from '@/components/content-card';
 import { notFound } from 'next/navigation';
+import { useAuth } from '@/firebase';
+import { useCollection } from '@/firebase/firestore/use-collection';
+import { collection, query, where } from 'firebase/firestore';
+import { useFirestore } from '@/firebase';
+import { deleteItem, createItem } from '@/firebase/firestore/api';
+import type { ContentItem } from '@/lib/types';
 
 interface CategoryPageProps {
   params: {
@@ -15,39 +20,47 @@ interface CategoryPageProps {
 
 export default function CategoryPage({ params }: CategoryPageProps) {
   const { category } = use(params);
-  const [items, setItems] = useState<ContentItem[]>([]);
+  const firestore = useFirestore();
+  const { user } = useAuth();
 
-  useEffect(() => {
-    const categoryItems = initialMockData.filter(
-      (item) => item.category === category
-    );
-    setItems(categoryItems);
-  }, [category]);
+  const itemsQuery =
+    firestore && user
+      ? query(
+          collection(firestore, 'items'),
+          where('category', '==', category),
+          where('userId', '==', user.uid)
+        )
+      : null;
+
+  const { data: items, loading } = useCollection<ContentItem>(itemsQuery);
 
   if (!Object.keys(categories).includes(category)) {
     notFound();
   }
 
-  const handleAddItem = (newItem: ContentItem) => {
-    setItems((prevItems) => [newItem, ...prevItems]);
+  const handleAddItem = (newItemData: Omit<ContentItem, 'id' | 'date' | 'userId'>) => {
+    if (firestore && user) {
+        createItem(firestore, user.uid, newItemData);
+    }
   };
   
   const handleDeleteItem = (id: string) => {
-    setItems((prevItems) => prevItems.filter((item) => item.id !== id));
+    if (firestore) {
+        deleteItem(firestore, id);
+    }
   };
 
-
-  return (
-    <div className="flex flex-col gap-8">
-      <PageHeader categorySlug={category} onAddItem={handleAddItem} />
-
-      {items.length > 0 ? (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {items.map((item) => (
-            <ContentCard key={item.id} item={item} onDeleteItem={handleDeleteItem} />
-          ))}
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <div className="flex items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 bg-muted/20 py-20 text-center">
+          <p className="text-muted-foreground">Đang tải nội dung...</p>
         </div>
-      ) : (
+      );
+    }
+
+    if (!items || items.length === 0) {
+      return (
         <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 bg-muted/20 py-20 text-center">
           <h3 className="text-lg font-semibold text-foreground">
             Chưa có nội dung
@@ -56,7 +69,22 @@ export default function CategoryPage({ params }: CategoryPageProps) {
             Bắt đầu bằng cách thêm một mục mới.
           </p>
         </div>
-      )}
+      );
+    }
+
+    return (
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {items.map((item) => (
+          <ContentCard key={item.id} item={item} onDeleteItem={handleDeleteItem} />
+        ))}
+      </div>
+    );
+  };
+
+  return (
+    <div className="flex flex-col gap-8">
+      <PageHeader categorySlug={category} onAddItem={handleAddItem} />
+      {renderContent()}
     </div>
   );
 }
