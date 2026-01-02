@@ -1,20 +1,21 @@
 'use client';
-import type { CategorySlug } from '@/lib/types';
+import type { CategorySlug, ContentItem } from '@/lib/types';
 import { categories } from '@/lib/types';
 import { NewItemDialog } from './new-item-dialog';
 
 interface PageHeaderProps {
   categorySlug: CategorySlug;
+  onAddItem: (item: ContentItem) => void;
 }
 
-export function PageHeader({ categorySlug }: PageHeaderProps) {
+export function PageHeader({ categorySlug, onAddItem }: PageHeaderProps) {
   const categoryInfo = categories[categorySlug];
   if (!categoryInfo) {
     return null;
   }
 
   return (
-    <header className="flex items-center justify-between mb-8">
+    <header className="flex items-center justify-between">
       <div>
         <h1 className="font-headline text-3xl font-bold tracking-tight">
           {categoryInfo.name}
@@ -23,9 +24,7 @@ export function PageHeader({ categorySlug }: PageHeaderProps) {
           Quản lý và xem tất cả các mục trong {categoryInfo.name.toLowerCase()}.
         </p>
       </div>
-      <NewItemDialog categorySlug={categorySlug} />
+      <NewItemDialog categorySlug={categorySlug} onAddItem={onAddItem} />
     </header>
   );
 }
-
-    

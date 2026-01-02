@@ -1,4 +1,5 @@
 'use client';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -8,29 +9,61 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Editor } from '@/components/editor';
 import { UploadCloud, FolderUp } from 'lucide-react';
-import type { CategorySlug } from '@/lib/types';
+import type { CategorySlug, ContentItem } from '@/lib/types';
 import { categories } from '@/lib/types';
+import { Textarea } from './ui/textarea';
 
 interface NewItemDialogProps {
   categorySlug: CategorySlug;
+  onAddItem: (item: ContentItem) => void;
 }
 
-export function NewItemDialog({ categorySlug }: NewItemDialogProps) {
+export function NewItemDialog({ categorySlug, onAddItem }: NewItemDialogProps) {
   const categoryInfo = categories[categorySlug];
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [content, setContent] = useState('');
+  const [open, setOpen] = useState(false);
+
+  const handleSave = () => {
+    if (!title || !description || !content) {
+      // Basic validation
+      alert('Vui lòng điền đầy đủ các trường.');
+      return;
+    }
+    const newItem: ContentItem = {
+      id: `${categorySlug}-${Date.now()}`,
+      title,
+      description,
+      content,
+      category: categorySlug,
+      date: new Date().toISOString(),
+      type: 'text', // Defaulting to text for now
+    };
+    onAddItem(newItem);
+    // Reset form and close dialog
+    setTitle('');
+    setDescription('');
+    setContent('');
+    setOpen(false);
+  };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>Thêm mới</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[725px]">
         <DialogHeader>
-          <DialogTitle className="font-headline">Thêm vào {categoryInfo.name}</DialogTitle>
+          <DialogTitle className="font-headline">
+            Thêm vào {categoryInfo.name}
+          </DialogTitle>
           <DialogDescription>
             Điền thông tin chi tiết dưới đây. Nhấn lưu khi bạn hoàn tất.
           </DialogDescription>
@@ -40,34 +73,58 @@ export function NewItemDialog({ categorySlug }: NewItemDialogProps) {
             <Label htmlFor="title" className="text-right">
               Tiêu đề
             </Label>
-            <Input id="title" placeholder="Tiêu đề của bạn" className="col-span-3" />
+            <Input
+              id="title"
+              placeholder="Tiêu đề của bạn"
+              className="col-span-3"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </div>
+           <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="description" className="text-right">
+              Mô tả
+            </Label>
+            <Input
+              id="description"
+              placeholder="Mô tả ngắn gọn"
+              className="col-span-3"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
           </div>
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="content" className="text-right pt-2">
               Nội dung
             </Label>
             <div className="col-span-3">
-              <Editor />
+              <Textarea
+                placeholder="Bắt đầu viết ở đây..."
+                className="min-h-[250px] w-full resize-y"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+              />
             </div>
           </div>
-           <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">
-              Tệp đính kèm
-            </Label>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label className="text-right">Tệp đính kèm</Label>
             <div className="col-span-3 flex gap-2">
-                <Button variant="outline">
-                    <UploadCloud className="mr-2 h-4 w-4"/>
-                    Tải tệp lên
-                </Button>
-                <Button variant="outline">
-                    <FolderUp className="mr-2 h-4 w-4"/>
-                    Tải thư mục
-                </Button>
+              <Button variant="outline" disabled>
+                <UploadCloud className="mr-2 h-4 w-4" />
+                Tải tệp lên
+              </Button>
+              <Button variant="outline" disabled>
+                <FolderUp className="mr-2 h-4 w-4" />
+                Tải thư mục
+              </Button>
             </div>
           </div>
         </div>
         <DialogFooter>
-          <Button type="submit">Lưu thay đổi</Button>
+          <DialogClose asChild>
+            <Button variant="outline">Hủy</Button>
+          </DialogClose>
+          <Button onClick={handleSave}>Lưu thay đổi</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
