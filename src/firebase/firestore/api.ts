@@ -14,7 +14,7 @@ import type { ContentItem } from '@/lib/types';
 export function createItem(
   db: Firestore,
   userId: string,
-  itemData: Omit<ContentItem, 'id' | 'date'>
+  itemData: Omit<ContentItem, 'id' | 'date' | 'userId'>
 ) {
   const itemsCollection = collection(db, 'items');
   const newItem = {

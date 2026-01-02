@@ -44,8 +44,9 @@ export function useCollection<T extends DocumentData>(
         setLoading(false);
       },
       async (err) => {
+        const path = (q as any)._query?.path?.segments?.join('/') ?? 'unknown path';
         const permissionError = new FirestorePermissionError({
-          path: q.path,
+          path: path,
           operation: 'list',
         });
         errorEmitter.emit('permission-error', permissionError);
