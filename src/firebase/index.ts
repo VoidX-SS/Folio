@@ -1,14 +1,21 @@
-import { initializeApp, getApp, getApps, type FirebaseOptions } from 'firebase/app';
+'use client';
+import {
+  initializeApp,
+  getApp,
+  getApps,
+  type FirebaseOptions,
+} from 'firebase/app';
 import { getAuth, connectAuthEmulator } from 'firebase/auth';
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 
+import { UserProvider, useUser } from './auth/use-user';
 import {
+  FirebaseProvider,
+  useFirebase,
+  useFirebaseApp,
   useAuth,
-  useUser,
-  type AuthState,
-  type UserState,
-} from './auth/use-user';
-import { FirebaseProvider, useFirebase, useFirebaseApp } from './provider';
+  useFirestore,
+} from './provider';
 import { useCollection } from './firestore/use-collection';
 import { useDoc } from './firestore/use-doc';
 
@@ -35,6 +42,7 @@ const initializeFirebase = (firebaseConfig: FirebaseOptions) => {
 
 export {
   FirebaseProvider,
+  UserProvider,
   useFirebase,
   useFirebaseApp,
   useFirestore,
@@ -44,4 +52,3 @@ export {
   useDoc,
   initializeFirebase,
 };
-export type { AuthState, UserState };

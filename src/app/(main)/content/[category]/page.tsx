@@ -5,10 +5,10 @@ import { categories } from '@/lib/types';
 import { PageHeader } from '@/components/page-header';
 import { ContentCard } from '@/components/content-card';
 import { notFound } from 'next/navigation';
-import { useAuth } from '@/firebase/auth/use-user';
-import { useCollection } from '@/firebase/firestore/use-collection';
+import { useUser } from '@/firebase';
+import { useCollection } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
-import { useFirestore } from '@/firebase/provider';
+import { useFirestore } from '@/firebase';
 import { deleteItem, createItem } from '@/firebase/firestore/api';
 import type { ContentItem } from '@/lib/types';
 
@@ -21,7 +21,7 @@ interface CategoryPageProps {
 export default function CategoryPage({ params }: CategoryPageProps) {
   const { category } = use(params);
   const firestore = useFirestore();
-  const { user } = useAuth();
+  const { user } = useUser();
 
   const itemsQuery =
     firestore && user
