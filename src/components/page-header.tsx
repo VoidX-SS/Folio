@@ -5,7 +5,7 @@ import { NewItemDialog } from './new-item-dialog';
 
 interface PageHeaderProps {
   categorySlug: CategorySlug;
-  onAddItem: (item: ContentItem) => void;
+  onAddItem: (item: Omit<ContentItem, 'id' | 'date'>) => void;
 }
 
 export function PageHeader({ categorySlug, onAddItem }: PageHeaderProps) {

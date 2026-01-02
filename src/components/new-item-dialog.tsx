@@ -13,7 +13,6 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Editor } from '@/components/editor';
 import { UploadCloud, FolderUp } from 'lucide-react';
 import type { CategorySlug, ContentItem } from '@/lib/types';
 import { categories } from '@/lib/types';
@@ -21,7 +20,7 @@ import { Textarea } from './ui/textarea';
 
 interface NewItemDialogProps {
   categorySlug: CategorySlug;
-  onAddItem: (item: ContentItem) => void;
+  onAddItem: (item: Omit<ContentItem, 'id' | 'date'>) => void;
 }
 
 export function NewItemDialog({ categorySlug, onAddItem }: NewItemDialogProps) {
@@ -33,21 +32,17 @@ export function NewItemDialog({ categorySlug, onAddItem }: NewItemDialogProps) {
 
   const handleSave = () => {
     if (!title || !description || !content) {
-      // Basic validation
       alert('Vui lòng điền đầy đủ các trường.');
       return;
     }
-    const newItem: ContentItem = {
-      id: `${categorySlug}-${Date.now()}`,
+    const newItem: Omit<ContentItem, 'id' | 'date'> = {
       title,
       description,
       content,
       category: categorySlug,
-      date: new Date().toISOString(),
-      type: 'text', // Defaulting to text for now
+      type: 'text', 
     };
     onAddItem(newItem);
-    // Reset form and close dialog
     setTitle('');
     setDescription('');
     setContent('');

@@ -8,19 +8,16 @@ import { ContentCard } from '@/components/content-card';
 import { notFound } from 'next/navigation';
 
 interface CategoryPageProps {
-  params: Promise<{
+  params: {
     category: CategorySlug;
-  }>
+  };
 }
 
 export default function CategoryPage({ params }: CategoryPageProps) {
-  // Although this is a client component, Next.js can pass params as a promise.
-  // Using React.use() is the modern way to handle this.
   const { category } = use(params);
   const [items, setItems] = useState<ContentItem[]>([]);
 
   useEffect(() => {
-    // Filter initial data based on category
     const categoryItems = initialMockData.filter(
       (item) => item.category === category
     );
