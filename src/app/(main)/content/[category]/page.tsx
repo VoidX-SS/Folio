@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, use } from 'react';
+import { useState, use } from 'react';
 import type { CategorySlug } from '@/lib/types';
 import { categories } from '@/lib/types';
 import { PageHeader } from '@/components/page-header';
