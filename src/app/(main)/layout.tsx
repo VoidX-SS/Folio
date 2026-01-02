@@ -1,8 +1,7 @@
 'use client';
 import { MainSidebar } from '@/components/main-sidebar';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
-import { useEffect } from 'react';
-import { useUser } from '@/firebase';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function MainAppLayout({
@@ -10,16 +9,24 @@ export default function MainAppLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, loading } = useUser();
   const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   useEffect(() => {
-    if (!loading && !user) {
+    try {
+      const authStatus = localStorage.getItem('isAuthenticated') === 'true';
+      setIsAuthenticated(authStatus);
+      if (!authStatus) {
+        router.push('/login');
+      }
+    } catch (error) {
+      console.error("Could not access localStorage:", error);
+      setIsAuthenticated(false);
       router.push('/login');
     }
-  }, [user, loading, router]);
+  }, [router]);
 
-  if (loading || !user) {
+  if (isAuthenticated === null) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
         <div>Đang tải ứng dụng...</div>

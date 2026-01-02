@@ -33,8 +33,7 @@ import {
   Folders,
   LogOut,
 } from 'lucide-react';
-import { useAuth, useUser } from '@/firebase';
-import { signOut } from 'firebase/auth';
+import { useUser } from '@/firebase';
 import { useRouter } from 'next/navigation';
 
 const navItems = [
@@ -50,13 +49,11 @@ const navItems = [
 
 export function MainSidebar() {
   const pathname = usePathname();
-  const { user } = useUser();
-  const auth = useAuth();
   const router = useRouter();
 
-  const handleSignOut = async () => {
+  const handleSignOut = () => {
     try {
-      await signOut(auth);
+      localStorage.removeItem('isAuthenticated');
       router.push('/login');
     } catch (error) {
       console.error("Lỗi khi đăng xuất:", error);
@@ -132,12 +129,12 @@ export function MainSidebar() {
         <SidebarSeparator />
          <div className="flex items-center gap-3 p-2">
             <Avatar className="h-9 w-9">
-              <AvatarImage src={user?.photoURL ?? `https://picsum.photos/seed/avatar/100/100`} alt="User Avatar" />
-              <AvatarFallback>{user?.displayName?.charAt(0) ?? 'U'}</AvatarFallback>
+              <AvatarImage src={`https://picsum.photos/seed/avatar/100/100`} alt="User Avatar" />
+              <AvatarFallback>A</AvatarFallback>
             </Avatar>
             <div className="flex flex-col truncate">
-                <span className="font-medium text-sm">{user?.displayName ?? 'Người dùng'}</span>
-                <span className="text-xs text-muted-foreground">{user?.email ?? 'nguoidung@example.com'}</span>
+                <span className="font-medium text-sm">Admin</span>
+                <span className="text-xs text-muted-foreground">admin@digitalfolio.com</span>
             </div>
             <div className="ml-auto">
                 <ThemeToggle />

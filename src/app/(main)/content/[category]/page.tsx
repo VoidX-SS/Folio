@@ -1,11 +1,10 @@
 'use client';
-import { useState, use } from 'react';
+import { useState, use, useEffect } from 'react';
 import type { CategorySlug } from '@/lib/types';
 import { categories } from '@/lib/types';
 import { PageHeader } from '@/components/page-header';
 import { ContentCard } from '@/components/content-card';
 import { notFound } from 'next/navigation';
-import { useUser } from '@/firebase';
 import { useCollection } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
@@ -18,17 +17,23 @@ interface CategoryPageProps {
   };
 }
 
+// A mock user ID for when Firebase Auth is not used.
+const MOCK_USER_ID = 'local-user';
+
 export default function CategoryPage({ params }: CategoryPageProps) {
   const { category } = use(params);
   const firestore = useFirestore();
-  const { user } = useUser();
+
+  // Since we are not using Firebase Auth, we use a constant user ID.
+  // In a real app with users, you would get this from your auth state.
+  const userId = MOCK_USER_ID;
 
   const itemsQuery =
-    firestore && user
+    firestore && userId
       ? query(
           collection(firestore, 'items'),
           where('category', '==', category),
-          where('userId', '==', user.uid)
+          where('userId', '==', userId)
         )
       : null;
 
@@ -39,8 +44,8 @@ export default function CategoryPage({ params }: CategoryPageProps) {
   }
 
   const handleAddItem = (newItemData: Omit<ContentItem, 'id' | 'date' | 'userId'>) => {
-    if (firestore && user) {
-        createItem(firestore, user.uid, newItemData);
+    if (firestore && userId) {
+        createItem(firestore, userId, newItemData);
     }
   };
   

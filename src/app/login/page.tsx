@@ -1,40 +1,49 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { GoogleAuthProvider, signInWithRedirect } from 'firebase/auth';
-import { useAuth, useUser } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Folders } from 'lucide-react';
+import { useToast } from "@/hooks/use-toast";
+
+const CORRECT_PIN = '690027';
 
 export default function LoginPage() {
-  const auth = useAuth();
-  const { user, loading } = useUser();
+  const [pin, setPin] = useState('');
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { toast } = useToast();
 
-  useEffect(() => {
-    if (!loading && user) {
-      router.push('/dashboard');
-    }
-  }, [user, loading, router]);
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
 
-  const handleSignIn = async () => {
-    const provider = new GoogleAuthProvider();
-    try {
-      await signInWithRedirect(auth, provider);
-    } catch (error) {
-      console.error('Lỗi đăng nhập:', error);
+    if (pin === CORRECT_PIN) {
+      // In a real app, you'd use a more secure session management method.
+      // For this simple case, we'll use localStorage.
+      try {
+        localStorage.setItem('isAuthenticated', 'true');
+        router.push('/dashboard');
+      } catch (error) {
+        console.error("Could not access localStorage:", error);
+        toast({
+          variant: "destructive",
+          title: "Lỗi Trình duyệt",
+          description: "Không thể lưu trạng thái đăng nhập. Vui lòng bật cookie hoặc sử dụng trình duyệt khác.",
+        });
+        setLoading(false);
+      }
+    } else {
+      toast({
+        variant: "destructive",
+        title: "PIN không chính xác",
+        description: "Mã PIN bạn nhập không đúng. Vui lòng thử lại.",
+      });
+      setLoading(false);
     }
   };
-
-  if (loading || user) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        Đang chuyển hướng...
-      </div>
-    );
-  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
@@ -44,13 +53,25 @@ export default function LoginPage() {
             <Folders className="h-8 w-8 text-primary" />
           </div>
           <CardTitle className="font-headline text-2xl">Chào mừng đến với Digital Folio</CardTitle>
-          <CardDescription>Đăng nhập để bắt đầu quản lý kho tri thức của bạn.</CardDescription>
+          <CardDescription>Nhập mã PIN để truy cập vào kho tri thức của bạn.</CardDescription>
         </CardHeader>
         <CardContent>
-          <Button className="w-full" onClick={handleSignIn}>
-            <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 381.7 512 244 512S0 403.3 0 261.8 106.3 11.8 244 11.8c67.6 0 127.8 27.3 171.6 71.6L364.5 169.8c-29.9-28.9-69.8-46.7-120.5-46.7-93.5 0-169.5 76-169.5 169.5s76 169.5 169.5 169.5c106.2 0 146-77.2 150.7-118.4H244V261.8h244z"></path></svg>
-            Đăng nhập với Google
-          </Button>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <Input
+              id="pin"
+              type="password"
+              placeholder="******"
+              value={pin}
+              onChange={(e) => setPin(e.target.value)}
+              maxLength={6}
+              className="text-center text-2xl tracking-[0.5em]"
+              aria-label="Mã PIN"
+              disabled={loading}
+            />
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? 'Đang kiểm tra...' : 'Truy cập'}
+            </Button>
+          </form>
         </CardContent>
       </Card>
     </div>
