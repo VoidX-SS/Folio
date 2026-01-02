@@ -1,0 +1,40 @@
+{
+  "placeholderImages": [
+    {
+      "id": "1",
+      "description": "Abstract code lines on a screen.",
+      "imageUrl": "https://images.unsplash.com/photo-1555949963-aa79dcee981c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxhYnN0cmFjdCUyMGNvZGV8ZW58MHx8fHwxNzY3MjYxNzU5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "abstract code"
+    },
+    {
+      "id": "2",
+      "description": "A person writing in a notebook.",
+      "imageUrl": "https://images.unsplash.com/photo-1761322572550-967ea8c0bfd9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx3cml0aW5nJTIwbm90ZWJvb2t8ZW58MHx8fHwxNzY3MzE5MTQ1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "writing notebook"
+    },
+    {
+      "id": "3",
+      "description": "A complex server room with glowing lights.",
+      "imageUrl": "https://images.unsplash.com/photo-1691435828932-911a7801adfb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxzZXJ2ZXIlMjByb29tfGVufDB8fHx8MTc2NzMzNjM0Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "server room"
+    },
+    {
+      "id": "4",
+      "description": "A collection of old books on a shelf.",
+      "imageUrl": "https://images.unsplash.com/photo-1600181982553-ce7d36051c01?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxvbGQlMjBib29rc3xlbnwwfHx8fDE3NjcyODEyNDl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "old books"
+    },
+    {
+      "id": "5",
+      "description": "A lightbulb glowing with an idea.",
+      "imageUrl": "https://images.unsplash.com/photo-1542504992-873a2f540fb2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxpZGVhJTIwbGlnaHRidWxifGVufDB8fHx8MTc2NzI3MjY0MHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "idea lightbulb"
+    },
+    {
+      "id": "6",
+      "description": "A minimal desk setup.",
+      "imageUrl": "https://images.unsplash.com/photo-1587522705669-61de54c723bf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxtaW5pbWFsJTIwZGVza3xlbnwwfHx8fDE3NjczNTY3OTZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "minimal desk"
+    }
+  ]
+}

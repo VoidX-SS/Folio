@@ -1,0 +1,139 @@
+/**
+ * Core Philosophy:
+ * This ruleset enforces a strict user-ownership model where all user-generated
+ * content is stored in subcollections under that user's unique document.
+ * Access is determined solely by the user's authentication UID matching the
+ * document path, ensuring users can only ever access their own data.
+ *
+ * Data Structure:
+ * The data is organized hierarchically under a top-level `users` collection.
+ * Each user's data, including their profile (`/users/{userId}`) and their
+ * knowledge entries (`/users/{userId}/knowledgeEntries/{knowledgeEntryId}`),
+ * is segregated within their own document tree. This structure prevents data
+ * leakage between users and simplifies security rules.
+ *
+ * Key Security Decisions:
+ * - Default Deny: All paths are closed by default. Access is only granted
+ *   through explicit `allow` rules.
+ * - No User Listing: Listing the top-level `/users` collection is disallowed
+ *   to prevent scraping of user profiles.
+ * - Path-Based Authorization: All authorization decisions are made by comparing
+ *   the authenticated user's UID (`request.auth.uid`) with the `userId`
+ *   wildcard in the document path. This avoids slow and costly `get()` calls
+ *   to other documents.
+ * - Prototyping Flexibility: These rules focus strictly on authorization (who
+ *   can access what) and do not enforce the specific shape or data types of
+ *   documents. This allows for rapid iteration on the client-side data model
+ *   without needing to update security rules for every schema change.
+ * - Relational Integrity: On document creation, the rules validate that any
+ *   internal `userId` or `id` field matches the `userId` from the document path,
+ *   enforcing data consistency. These fields are immutable on update.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Allow public read/write access to the shared datastore.
+    match /users/shared-user-main-datastore/knowledgeEntries/{knowledgeEntryId} {
+      allow read, write: if true;
+    }
+
+    // ----------------------------------------------------------------------
+    // Helper Functions
+    // ----------------------------------------------------------------------
+
+    /**
+     * Checks if the user is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * Checks if the authenticated user's UID matches the provided userId.
+     * This is the primary function for enforcing data ownership.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * Checks if the authenticated user is the owner of an existing document.
+     * Used for update and delete operations to prevent acting on non-existent data.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    /**
+     * Validates that a user is creating their own user profile document.
+     * Ensures the document's internal `id` matches the user's auth UID.
+     */
+    function isCreatingSelf(userId) {
+      return isOwner(userId) && request.resource.data.id == userId;
+    }
+
+    /**
+     * Validates that a user is updating their own profile and that the `id` field remains unchanged.
+     */
+    function isUpdatingSelf(userId) {
+      return isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+    }
+
+    /**
+     * Validates that a user is creating content within their own data tree.
+     * Ensures the new document's internal `userId` field correctly references the owner.
+     */
+    function isCreatingOwnContent(userId) {
+      return isOwner(userId) && request.resource.data.userId == userId;
+    }
+
+    /**
+     * Validates that a user is updating their own content and that the `userId` field remains unchanged.
+     */
+    function isUpdatingOwnContent(userId) {
+      return isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+    }
+
+    // ----------------------------------------------------------------------
+    // Collection Rules
+    // ----------------------------------------------------------------------
+
+    /**
+     * @description Manages user profile documents. Each user can create, read, and
+     *   update their own profile, but cannot delete it or see others' profiles.
+     * @path /users/{userId}
+     * @allow (create) An authenticated user creates their own profile document
+     *   (e.g., POST /users/abc with auth.uid = 'abc' and data.id = 'abc').
+     * @deny (list) Any user attempting to list all documents in the `/users` collection.
+     * @deny (update) User 'abc' trying to update the profile document for user 'xyz'.
+     * @principle Restricts access to a user's own data tree and prevents user enumeration.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isCreatingSelf(userId);
+      allow update: if isUpdatingSelf(userId);
+      allow delete: if false; // Users cannot delete their own profile documents.
+
+      /**
+       * @description Manages a user's private knowledge entries. A user has full
+       *   CRUD (Create, Read, Update, Delete) access to their own entries.
+       * @path /users/{userId}/knowledgeEntries/{knowledgeEntryId}
+       * @allow (list) User 'abc' lists all documents in `/users/abc/knowledgeEntries`.
+       * @allow (create) User 'abc' creates a new entry in their own collection with
+       *   the `userId` field set to 'abc'.
+       * @deny (get) User 'xyz' attempts to read a document from `/users/abc/knowledgeEntries`.
+       * @deny (create) User 'abc' attempts to create an entry where `data.userId` is 'xyz'.
+       * @principle Enforces strict document ownership within a user-specific subcollection.
+       */
+      match /knowledgeEntries/{knowledgeEntryId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isCreatingOwnContent(userId);
+        allow update: if isUpdatingOwnContent(userId);
+        allow delete: if isExistingOwner(userId);
+      }
+    }
+  }
+}

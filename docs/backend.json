@@ -1,0 +1,141 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the Digital Folio application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the User entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the user.",
+          "format": "email"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "The display name of the user."
+        },
+        "theme": {
+          "type": "string",
+          "description": "The UI theme selected by the user (e.g., 'light', 'dark').",
+          "format": "string"
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "displayName"
+      ]
+    },
+    "KnowledgeEntry": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "KnowledgeEntry",
+      "type": "object",
+      "description": "Represents a knowledge entry, such as a novel, project, or idea, stored in the Digital Folio.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the KnowledgeEntry entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N KnowledgeEntry)"
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the knowledge entry."
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of the knowledge entry (e.g., 'Novel', 'Large Project', 'Small Project', 'Code Snippet', 'Idea', 'Account Info', 'Exception')."
+        },
+        "content": {
+          "type": "string",
+          "description": "The text content of the knowledge entry.  Can be rich text or code."
+        },
+        "filePaths": {
+          "type": "array",
+          "description": "Array of file paths for attached files or folders.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "links": {
+          "type": "array",
+          "description": "Array of URLs associated with the entry.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dateCreated": {
+          "type": "string",
+          "description": "The date and time the knowledge entry was created.",
+          "format": "date-time"
+        },
+        "dateModified": {
+          "type": "string",
+          "description": "The date and time the knowledge entry was last modified.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "title",
+        "type",
+        "content"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profile information.  The 'userId' parameter corresponds to the Firebase Authentication UID. This path enforces path-based ownership: only the authenticated user can read/write their own profile.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The Firebase Authentication UID of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/knowledgeEntries/{knowledgeEntryId}",
+        "definition": {
+          "entityName": "KnowledgeEntry",
+          "schema": {
+            "$ref": "#/backend/entities/KnowledgeEntry"
+          },
+          "description": "Stores knowledge entries for each user. The 'userId' parameter corresponds to the Firebase Authentication UID. This path enforces path-based ownership: only the authenticated user can read/write their own knowledge entries.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The Firebase Authentication UID of the user."
+            },
+            {
+              "name": "knowledgeEntryId",
+              "description": "The unique ID of the knowledge entry."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to address the 'auth/unauthorized-domain' error and support the application's data storage needs, focusing on security, scalability, and ease of debugging.  The core structure is path-based ownership for user data, and all collections have homogeneous security postures.\n\nThe structure enforces Authorization Independence by avoiding `get()` calls in security rules. All authorization information is derived from `request.auth.uid` and the document path.  The application only uses authenticated users, and relies on ownership, and segregated collections to enforce security.\n\nCollection segregation is used extensively. User-owned data is stored under `/users/{userId}` to ensure that each user only has access to their own data. There are no global roles or custom claims.\n\nThe structure supports secure `list` operations (QAPs) by restricting access based on path-based ownership. A user can only list knowledge entries in their own collection.\n\nOwnership and timestamps are maintained and can be used to enforce invariants, ensuring data integrity."
+  }
+}
