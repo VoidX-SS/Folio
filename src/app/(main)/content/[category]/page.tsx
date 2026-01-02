@@ -5,7 +5,7 @@ import { categories } from '@/lib/types';
 import { PageHeader } from '@/components/page-header';
 import { ContentCard } from '@/components/content-card';
 import { notFound } from 'next/navigation';
-import { useCollection } from '@/firebase';
+import { useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
 import { deleteItem, createItem } from '@/firebase/firestore/api';
@@ -21,21 +21,24 @@ interface CategoryPageProps {
 const MOCK_USER_ID = 'local-user';
 
 export default function CategoryPage({ params }: CategoryPageProps) {
-  const { category } = use(params);
+  const { category } = params;
   const firestore = useFirestore();
 
   // Since we are not using Firebase Auth, we use a constant user ID.
   // In a real app with users, you would get this from your auth state.
   const userId = MOCK_USER_ID;
 
-  const itemsQuery =
-    firestore && userId
-      ? query(
-          collection(firestore, 'items'),
-          where('category', '==', category),
-          where('userId', '==', userId)
-        )
-      : null;
+  const itemsQuery = useMemoFirebase(
+    () =>
+      firestore && userId
+        ? query(
+            collection(firestore, 'items'),
+            where('category', '==', category),
+            where('userId', '==', userId)
+          )
+        : null,
+    [firestore, userId, category]
+  );
 
   const { data: items, loading } = useCollection<ContentItem>(itemsQuery);
 
