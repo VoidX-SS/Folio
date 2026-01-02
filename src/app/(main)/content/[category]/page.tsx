@@ -1,5 +1,5 @@
 'use client';
-import { useState, use, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import type { CategorySlug } from '@/lib/types';
 import { categories } from '@/lib/types';
 import { PageHeader } from '@/components/page-header';
@@ -8,13 +8,14 @@ import { notFound } from 'next/navigation';
 import { useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
-import { deleteItem, createItem } from '@/firebase/firestore/api';
+import { deleteItem } from '@/firebase/firestore/api';
 import type { KnowledgeEntry } from '@/lib/types';
 
+
 interface CategoryPageProps {
-  params: {
+  params: Promise<{
     category: CategorySlug;
-  };
+  }>;
 }
 
 // A constant user ID for the shared datastore.
@@ -29,9 +30,9 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     () =>
       firestore && userId
         ? query(
-            collection(firestore, 'users', userId, 'knowledgeEntries'),
-            where('type', '==', category)
-          )
+          collection(firestore, 'users', userId, 'knowledgeEntries'),
+          where('type', '==', category)
+        )
         : null,
     [firestore, userId, category]
   );
@@ -43,15 +44,10 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     notFound();
   }
 
-  const handleAddItem = (
-    newItemData: Omit<
-      KnowledgeEntry,
-      'id' | 'dateCreated' | 'dateModified' | 'userId'
-    >
-  ) => {
-    if (firestore && userId) {
-      createItem(firestore, userId, newItemData);
-    }
+  const [editingItem, setEditingItem] = useState<KnowledgeEntry | null>(null);
+
+  const handleAddItem = () => {
+    // Replaced by direct link in PageHeader
   };
 
   const handleDeleteItem = (id: string) => {
@@ -97,7 +93,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
 
   return (
     <div className="flex flex-col gap-8">
-      <PageHeader categorySlug={category} onAddItem={handleAddItem} />
+      <PageHeader categorySlug={category} />
       {renderContent()}
     </div>
   );

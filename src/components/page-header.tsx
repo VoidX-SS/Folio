@@ -1,14 +1,14 @@
 'use client';
 import type { CategorySlug, KnowledgeEntry } from '@/lib/types';
 import { categories } from '@/lib/types';
-import { NewItemDialog } from './new-item-dialog';
+import Link from 'next/link';
+import { Button } from './ui/button';
 
 interface PageHeaderProps {
   categorySlug: CategorySlug;
-  onAddItem: (item: Omit<KnowledgeEntry, 'id' | 'dateCreated' | 'dateModified' | 'userId'>) => void;
 }
 
-export function PageHeader({ categorySlug, onAddItem }: PageHeaderProps) {
+export function PageHeader({ categorySlug }: PageHeaderProps) {
   const categoryInfo = categories[categorySlug];
   if (!categoryInfo) {
     return null;
@@ -24,7 +24,11 @@ export function PageHeader({ categorySlug, onAddItem }: PageHeaderProps) {
           Quản lý và xem tất cả các mục trong {categoryInfo.name.toLowerCase()}.
         </p>
       </div>
-      <NewItemDialog categorySlug={categorySlug} onAddItem={onAddItem} />
+      <Button asChild>
+        <Link href={`/content/${categorySlug}/new`}>
+          Thêm mới
+        </Link>
+      </Button>
     </header>
   );
 }
