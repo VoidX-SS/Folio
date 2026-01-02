@@ -5,10 +5,10 @@ import { categories } from '@/lib/types';
 import { PageHeader } from '@/components/page-header';
 import { ContentCard } from '@/components/content-card';
 import { notFound } from 'next/navigation';
-import { useAuth } from '@/firebase';
+import { useAuth } from '@/firebase/auth/use-user';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { collection, query, where } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
+import { useFirestore } from '@/firebase/provider';
 import { deleteItem, createItem } from '@/firebase/firestore/api';
 import type { ContentItem } from '@/lib/types';
 
