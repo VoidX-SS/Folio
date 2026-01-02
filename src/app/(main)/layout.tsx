@@ -1,11 +1,15 @@
 'use client';
 import { MainSidebar } from '@/components/main-sidebar';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useUser } from '@/firebase';
 import { useRouter } from 'next/navigation';
 
-export default function MainAppLayout({ children }: { children: React.ReactNode }) {
+export default function MainAppLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { user, loading } = useUser();
   const router = useRouter();
 
