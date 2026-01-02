@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { initializeFirebase, FirebaseProvider } from '@/firebase';
+import { initializeFirebase, FirebaseProvider, UserProvider } from '@/firebase';
 import firebaseConfig from '@/firebase/config';
 
 export function FirebaseClientProvider({ children }: { children: React.ReactNode }) {
@@ -22,7 +22,7 @@ export function FirebaseClientProvider({ children }: { children: React.ReactNode
 
     return (
         <FirebaseProvider value={firebaseInstances}>
-            {children}
+            <UserProvider>{children}</UserProvider>
         </FirebaseProvider>
     );
 }
