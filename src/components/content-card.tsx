@@ -50,17 +50,6 @@ export function ContentCard({ item }: ContentCardProps) {
         <CardDescription>{item.description}</CardDescription>
       </CardHeader>
       <CardContent className="flex-grow">
-        {item.imageUrl && (
-          <div className="relative aspect-[3/2] w-full overflow-hidden rounded-md mb-4">
-            <Image
-              src={item.imageUrl}
-              alt={item.title}
-              fill
-              className="object-cover"
-              data-ai-hint="abstract image"
-            />
-          </div>
-        )}
         <div className="flex items-center gap-2">
             {item.type === 'code' && (
               <Badge variant="secondary">{item.language}</Badge>
