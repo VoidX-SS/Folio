@@ -1,4 +1,4 @@
-import Image from 'next/image';
+'use client';
 import type { ContentItem } from '@/lib/types';
 import {
   Card,
@@ -72,3 +72,5 @@ export function ContentCard({ item }: ContentCardProps) {
     </Card>
   );
 }
+
+    

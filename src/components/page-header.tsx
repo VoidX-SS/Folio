@@ -1,3 +1,4 @@
+'use client';
 import type { CategorySlug } from '@/lib/types';
 import { categories } from '@/lib/types';
 import { NewItemDialog } from './new-item-dialog';
@@ -26,3 +27,5 @@ export function PageHeader({ categorySlug }: PageHeaderProps) {
     </header>
   );
 }
+
+    
