@@ -6,10 +6,10 @@ import { PageHeader } from '@/components/page-header';
 import { ContentCard } from '@/components/content-card';
 import { notFound } from 'next/navigation';
 import { useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
+import { collection, query, where }from 'firebase/firestore';
+import { useFirestore, useUser } from '@/firebase';
 import { deleteItem, createItem } from '@/firebase/firestore/api';
-import type { ContentItem } from '@/lib/types';
+import type { KnowledgeEntry } from '@/lib/types';
 
 interface CategoryPageProps {
   params: {
@@ -17,44 +17,38 @@ interface CategoryPageProps {
   };
 }
 
-// A mock user ID for when Firebase Auth is not used.
-const MOCK_USER_ID = 'local-user';
-
 export default function CategoryPage({ params }: CategoryPageProps) {
   const { category } = use(params);
   const firestore = useFirestore();
-
-  // Since we are not using Firebase Auth, we use a constant user ID.
-  // In a real app with users, you would get this from your auth state.
-  const userId = MOCK_USER_ID;
+  const { user } = useUser();
+  const userId = user?.uid;
 
   const itemsQuery = useMemoFirebase(
     () =>
       firestore && userId
         ? query(
-            collection(firestore, 'items'),
-            where('category', '==', category),
-            where('userId', '==', userId)
+            collection(firestore, 'users', userId, 'knowledgeEntries'),
+            where('type', '==', category)
           )
         : null,
     [firestore, userId, category]
   );
 
-  const { data: items, loading } = useCollection<ContentItem>(itemsQuery);
+  const { data: items, isLoading: loading } = useCollection<KnowledgeEntry>(itemsQuery);
 
   if (!Object.keys(categories).includes(category)) {
     notFound();
   }
 
-  const handleAddItem = (newItemData: Omit<ContentItem, 'id' | 'date' | 'userId'>) => {
+  const handleAddItem = (newItemData: Omit<KnowledgeEntry, 'id' | 'dateCreated' | 'dateModified' | 'userId'>) => {
     if (firestore && userId) {
-        createItem(firestore, userId, newItemData);
+      createItem(firestore, userId, newItemData);
     }
   };
-  
+
   const handleDeleteItem = (id: string) => {
-    if (firestore) {
-        deleteItem(firestore, id);
+    if (firestore && userId) {
+      deleteItem(firestore, userId, id);
     }
   };
 

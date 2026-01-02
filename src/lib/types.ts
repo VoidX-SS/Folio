@@ -11,14 +11,20 @@ export const categories = {
 
 export type CategorySlug = keyof typeof categories;
 
-export type ContentItem = {
+// This is an alias for KnowledgeEntry for simplicity in the UI code
+export type ContentItem = KnowledgeEntry;
+
+export type KnowledgeEntry = {
   id: string;
+  userId: string;
   title: string;
-  description: string;
-  category: CategorySlug;
-  date: string;
+  description: string; // Added field
+  type: CategorySlug; // Changed from string to CategorySlug for type safety
   content: string;
-  type: 'text' | 'code';
+  filePaths?: string[];
+  links?: string[];
+  dateCreated: any; // Using 'any' for Firestore ServerTimestamp
+  dateModified: any; // Using 'any' for Firestore ServerTimestamp
   language?: 'python' | 'lua' | 'html' | 'css' | 'javascript' | 'csharp' | 'markdown';
   imageUrl?: string;
   link?: string;

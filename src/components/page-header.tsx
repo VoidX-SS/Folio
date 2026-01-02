@@ -1,11 +1,11 @@
 'use client';
-import type { CategorySlug, ContentItem } from '@/lib/types';
+import type { CategorySlug, KnowledgeEntry } from '@/lib/types';
 import { categories } from '@/lib/types';
 import { NewItemDialog } from './new-item-dialog';
 
 interface PageHeaderProps {
   categorySlug: CategorySlug;
-  onAddItem: (item: Omit<ContentItem, 'id' | 'date'>) => void;
+  onAddItem: (item: Omit<KnowledgeEntry, 'id' | 'dateCreated' | 'dateModified' | 'userId'>) => void;
 }
 
 export function PageHeader({ categorySlug, onAddItem }: PageHeaderProps) {

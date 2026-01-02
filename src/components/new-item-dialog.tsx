@@ -14,13 +14,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { UploadCloud, FolderUp } from 'lucide-react';
-import type { CategorySlug, ContentItem } from '@/lib/types';
+import type { CategorySlug, KnowledgeEntry } from '@/lib/types';
 import { categories } from '@/lib/types';
 import { Textarea } from './ui/textarea';
 
 interface NewItemDialogProps {
   categorySlug: CategorySlug;
-  onAddItem: (item: Omit<ContentItem, 'id' | 'date'>) => void;
+  onAddItem: (item: Omit<KnowledgeEntry, 'id' | 'dateCreated' | 'dateModified' | 'userId'>) => void;
 }
 
 export function NewItemDialog({ categorySlug, onAddItem }: NewItemDialogProps) {
@@ -35,12 +35,11 @@ export function NewItemDialog({ categorySlug, onAddItem }: NewItemDialogProps) {
       alert('Vui lòng điền đầy đủ các trường.');
       return;
     }
-    const newItem: Omit<ContentItem, 'id' | 'date'> = {
+    const newItem: Omit<KnowledgeEntry, 'id' | 'dateCreated' | 'dateModified' | 'userId'> = {
       title,
       description,
       content,
-      category: categorySlug,
-      type: 'text', 
+      type: categorySlug,
     };
     onAddItem(newItem);
     setTitle('');

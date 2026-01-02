@@ -1,32 +1,25 @@
 'use client';
 import { MainSidebar } from '@/components/main-sidebar';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useAuth, initiateAnonymousSignIn } from '@/firebase';
+import { useUser } from '@/firebase/auth/use-user';
+import { useEffect } from 'react';
 
 export default function MainAppLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const auth = useAuth();
+  const { user, loading } = useUser();
 
   useEffect(() => {
-    try {
-      const authStatus = localStorage.getItem('isAuthenticated') === 'true';
-      setIsAuthenticated(authStatus);
-      if (!authStatus) {
-        router.push('/login');
-      }
-    } catch (error) {
-      console.error("Could not access localStorage:", error);
-      setIsAuthenticated(false);
-      router.push('/login');
+    if (!loading && !user) {
+      initiateAnonymousSignIn(auth);
     }
-  }, [router]);
+  }, [auth, user, loading]);
 
-  if (isAuthenticated === null) {
+  if (loading) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
         <div>Đang tải ứng dụng...</div>

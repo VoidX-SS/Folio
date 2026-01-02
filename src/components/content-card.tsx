@@ -33,10 +33,23 @@ import {
   DialogTrigger,
   DialogFooter,
 } from '@/components/ui/dialog';
+import { Timestamp } from 'firebase/firestore';
+
 
 interface ContentCardProps {
   item: ContentItem;
   onDeleteItem: (id: string) => void;
+}
+
+function formatDate(timestamp: any) {
+    if (timestamp instanceof Timestamp) {
+      return timestamp.toDate().toLocaleDateString('vi-VN');
+    }
+    // Fallback for cases where it might not be a timestamp yet (e.g., local state before Firestore sync)
+    if(timestamp && typeof timestamp.toDate === 'function') {
+      return timestamp.toDate().toLocaleDateString('vi-VN');
+    }
+    return 'Đang chờ...';
 }
 
 export function ContentCard({ item, onDeleteItem }: ContentCardProps) {
@@ -70,7 +83,7 @@ export function ContentCard({ item, onDeleteItem }: ContentCardProps) {
       </CardHeader>
       <CardContent className="flex-grow">
         <div className="flex items-center gap-2">
-          {item.type === 'code' && (
+          {item.type === 'fun-code' && (
             <Badge variant="secondary">{item.language}</Badge>
           )}
           {item.link && (
@@ -100,7 +113,7 @@ export function ContentCard({ item, onDeleteItem }: ContentCardProps) {
               </div>
               <DialogFooter>
                   <p className="text-sm text-muted-foreground">
-                    Cập nhật: {new Date(item.date).toLocaleDateString('vi-VN')}
+                    Cập nhật: {formatDate(item.dateModified)}
                   </p>
               </DialogFooter>
             </DialogContent>
@@ -109,7 +122,7 @@ export function ContentCard({ item, onDeleteItem }: ContentCardProps) {
       </CardContent>
       <CardFooter>
         <p className="text-sm text-muted-foreground">
-          Cập nhật: {new Date(item.date).toLocaleDateString('vi-VN')}
+           Cập nhật: {formatDate(item.dateModified)}
         </p>
       </CardFooter>
     </Card>

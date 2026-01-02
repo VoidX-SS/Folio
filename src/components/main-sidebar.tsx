@@ -33,8 +33,9 @@ import {
   Folders,
   LogOut,
 } from 'lucide-react';
-import { useUser } from '@/firebase';
+import { useUser, useAuth } from '@/firebase';
 import { useRouter } from 'next/navigation';
+import { signOut } from 'firebase/auth';
 
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Bảng điều khiển' },
@@ -50,11 +51,13 @@ const navItems = [
 export function MainSidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const auth = useAuth();
+  const { user } = useUser();
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
     try {
-      localStorage.removeItem('isAuthenticated');
-      router.push('/login');
+      await signOut(auth);
+      // Anonymous user will be signed in again by the layout effect
     } catch (error) {
       console.error("Lỗi khi đăng xuất:", error);
     }
@@ -87,7 +90,7 @@ export function MainSidebar() {
                   <Link href={item.href}>
                     <SidebarMenuButton
                       asChild
-                      isActive={pathname === item.href}
+                      isActive={pathname.startsWith(item.href)}
                       icon={<item.icon />}
                       tooltip={item.label}
                     >
@@ -123,18 +126,18 @@ export function MainSidebar() {
                 <SidebarMenuButton icon={<Settings />}>Cài đặt</SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton onClick={handleSignOut} icon={<LogOut />}>Đăng xuất</SidebarMenuButton>
+              <SidebarMenuButton onClick={handleSignOut} icon={<LogOut />}>Tạo phiên mới</SidebarMenuButton>
             </SidebarMenuItem>
         </SidebarMenu>
         <SidebarSeparator />
          <div className="flex items-center gap-3 p-2">
             <Avatar className="h-9 w-9">
-              <AvatarImage src={`https://picsum.photos/seed/avatar/100/100`} alt="User Avatar" />
-              <AvatarFallback>A</AvatarFallback>
+              <AvatarImage src={`https://i.pravatar.cc/150?u=${user?.uid}`} alt="User Avatar" />
+              <AvatarFallback>{user?.isAnonymous ? 'A' : 'U'}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col truncate">
-                <span className="font-medium text-sm">Admin</span>
-                <span className="text-xs text-muted-foreground">admin@digitalfolio.com</span>
+                <span className="font-medium text-sm">{user?.isAnonymous ? 'Người dùng ẩn danh' : (user?.displayName || 'Người dùng')}</span>
+                <span className="text-xs text-muted-foreground truncate">{user?.uid}</span>
             </div>
             <div className="ml-auto">
                 <ThemeToggle />
