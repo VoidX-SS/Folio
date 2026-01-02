@@ -6,8 +6,8 @@ import { PageHeader } from '@/components/page-header';
 import { ContentCard } from '@/components/content-card';
 import { notFound } from 'next/navigation';
 import { useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where }from 'firebase/firestore';
-import { useFirestore, useUser } from '@/firebase';
+import { collection, query, where } from 'firebase/firestore';
+import { useFirestore } from '@/firebase';
 import { deleteItem, createItem } from '@/firebase/firestore/api';
 import type { KnowledgeEntry } from '@/lib/types';
 
@@ -17,11 +17,13 @@ interface CategoryPageProps {
   };
 }
 
+// A constant user ID for the shared datastore.
+const SHARED_USER_ID = 'shared-user-main-datastore';
+
 export default function CategoryPage({ params }: CategoryPageProps) {
   const { category } = use(params);
   const firestore = useFirestore();
-  const { user } = useUser();
-  const userId = user?.uid;
+  const userId = SHARED_USER_ID;
 
   const itemsQuery = useMemoFirebase(
     () =>
@@ -34,13 +36,19 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     [firestore, userId, category]
   );
 
-  const { data: items, isLoading: loading } = useCollection<KnowledgeEntry>(itemsQuery);
+  const { data: items, isLoading: loading } =
+    useCollection<KnowledgeEntry>(itemsQuery);
 
   if (!Object.keys(categories).includes(category)) {
     notFound();
   }
 
-  const handleAddItem = (newItemData: Omit<KnowledgeEntry, 'id' | 'dateCreated' | 'dateModified' | 'userId'>) => {
+  const handleAddItem = (
+    newItemData: Omit<
+      KnowledgeEntry,
+      'id' | 'dateCreated' | 'dateModified' | 'userId'
+    >
+  ) => {
     if (firestore && userId) {
       createItem(firestore, userId, newItemData);
     }
@@ -77,7 +85,11 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     return (
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {items.map((item) => (
-          <ContentCard key={item.id} item={item} onDeleteItem={handleDeleteItem} />
+          <ContentCard
+            key={item.id}
+            item={item}
+            onDeleteItem={handleDeleteItem}
+          />
         ))}
       </div>
     );

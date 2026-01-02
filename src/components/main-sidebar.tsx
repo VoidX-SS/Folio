@@ -31,11 +31,8 @@ import {
   LifeBuoy,
   Settings,
   Folders,
-  LogOut,
+  Users,
 } from 'lucide-react';
-import { useUser, useAuth } from '@/firebase';
-import { useRouter } from 'next/navigation';
-import { signOut } from 'firebase/auth';
 
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Bảng điều khiển' },
@@ -50,18 +47,6 @@ const navItems = [
 
 export function MainSidebar() {
   const pathname = usePathname();
-  const router = useRouter();
-  const auth = useAuth();
-  const { user } = useUser();
-
-  const handleSignOut = async () => {
-    try {
-      await signOut(auth);
-      // Anonymous user will be signed in again by the layout effect
-    } catch (error) {
-      console.error("Lỗi khi đăng xuất:", error);
-    }
-  };
 
   return (
     <Sidebar>
@@ -125,19 +110,15 @@ export function MainSidebar() {
              <SidebarMenuItem>
                 <SidebarMenuButton icon={<Settings />}>Cài đặt</SidebarMenuButton>
             </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton onClick={handleSignOut} icon={<LogOut />}>Tạo phiên mới</SidebarMenuButton>
-            </SidebarMenuItem>
         </SidebarMenu>
         <SidebarSeparator />
          <div className="flex items-center gap-3 p-2">
             <Avatar className="h-9 w-9">
-              <AvatarImage src={`https://i.pravatar.cc/150?u=${user?.uid}`} alt="User Avatar" />
-              <AvatarFallback>{user?.isAnonymous ? 'A' : 'U'}</AvatarFallback>
+               <AvatarFallback><Users /></AvatarFallback>
             </Avatar>
             <div className="flex flex-col truncate">
-                <span className="font-medium text-sm">{user?.isAnonymous ? 'Người dùng ẩn danh' : (user?.displayName || 'Người dùng')}</span>
-                <span className="text-xs text-muted-foreground truncate">{user?.uid}</span>
+                <span className="font-medium text-sm">Kho dữ liệu chung</span>
+                <span className="text-xs text-muted-foreground truncate">Mọi người đều có thể truy cập</span>
             </div>
             <div className="ml-auto">
                 <ThemeToggle />
