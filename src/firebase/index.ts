@@ -18,6 +18,7 @@ import {
 } from './provider';
 import { useCollection } from './firestore/use-collection';
 import { useDoc } from './firestore/use-doc';
+import { FirebaseClientProvider } from './client-provider';
 
 const initializeFirebase = (firebaseConfig: FirebaseOptions) => {
   const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
@@ -42,6 +43,7 @@ const initializeFirebase = (firebaseConfig: FirebaseOptions) => {
 
 export {
   FirebaseProvider,
+  FirebaseClientProvider,
   UserProvider,
   useFirebase,
   useFirebaseApp,
