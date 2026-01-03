@@ -23,10 +23,12 @@ import {
   AlignLeft,
   AlignCenter,
   AlignRight,
+  AlignJustify,
   Link as LinkIcon,
   Unlink,
   Minus,
   MoreHorizontal,
+  Square,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -129,8 +131,8 @@ export function Editor({ value, onChange, placeholder = 'Bắt đầu viết...'
     content: value,
     editorProps: {
       attributes: {
-        class: 'min-h-[500px] w-full px-6 py-4 text-base focus:outline-none prose prose-base dark:prose-invert max-w-none',
-        style: `line-height: ${lineSpacing}`,
+        class: 'min-h-[500px] w-full px-6 py-4 text-base focus:outline-none prose prose-base dark:prose-invert max-w-none break-words whitespace-pre-wrap overflow-wrap-anywhere',
+        style: `line-height: ${lineSpacing}; word-wrap: break-word; overflow-wrap: break-word;`,
         lang: 'vi',
         spellcheck: 'true',
       },
@@ -270,6 +272,14 @@ export function Editor({ value, onChange, placeholder = 'Bắt đầu viết...'
           <AlignRight className="h-4 w-4" />
         </ToolbarButton>
 
+        <ToolbarButton
+          onClick={() => editor.chain().focus().setTextAlign('justify').run()}
+          isActive={editor.isActive({ textAlign: 'justify' })}
+          tooltip="Justify"
+        >
+          <AlignJustify className="h-4 w-4" />
+        </ToolbarButton>
+
         <Separator orientation="vertical" className="h-6 mx-1" />
 
         {/* Lists */}
@@ -306,6 +316,28 @@ export function Editor({ value, onChange, placeholder = 'Bắt đầu viết...'
           tooltip="Code Block"
         >
           <Code className="h-4 w-4" />
+        </ToolbarButton>
+
+        {/* Callout/Pin Box */}
+        <ToolbarButton
+          onClick={() => {
+            editor.chain().focus().insertContent({
+              type: 'blockquote',
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [
+                    { type: 'text', text: '📌 ' },
+                    { type: 'text', marks: [{ type: 'bold' }], text: 'Ghi chú: ' },
+                    { type: 'text', text: 'Nhập nội dung tại đây...' },
+                  ],
+                },
+              ],
+            }).run();
+          }}
+          tooltip="Hộp ghi chú (Pin Box)"
+        >
+          <Square className="h-4 w-4" />
         </ToolbarButton>
 
         <ToolbarButton
@@ -410,8 +442,8 @@ export function Editor({ value, onChange, placeholder = 'Bắt đầu viết...'
       </div>
 
       {/* Editor Content */}
-      <div className="min-h-[400px] relative">
-        <EditorContent editor={editor} className="h-full" />
+      <div className="min-h-[400px] relative overflow-x-hidden" style={{ maxWidth: '100%' }}>
+        <EditorContent editor={editor} className="h-full [&_.ProseMirror]:overflow-x-hidden [&_.ProseMirror]:max-w-full [&_.ProseMirror]:break-all" />
       </div>
     </div>
   );

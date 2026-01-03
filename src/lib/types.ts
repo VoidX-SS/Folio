@@ -18,14 +18,15 @@ export type KnowledgeEntry = {
   id: string;
   userId: string;
   title: string;
-  description: string; // Added field
-  type: CategorySlug; // Changed from string to CategorySlug for type safety
+  description: string;
+  type: CategorySlug;
   content: string;
   filePaths?: string[];
   links?: string[];
-  dateCreated: any; // Using 'any' for Firestore ServerTimestamp
-  dateModified: any; // Using 'any' for Firestore ServerTimestamp
+  dateCreated: any;
+  dateModified: any;
   language?: 'python' | 'lua' | 'html' | 'css' | 'javascript' | 'csharp' | 'markdown';
   imageUrl?: string;
   link?: string;
+  pinned?: boolean; // Pin items to show at top
 };

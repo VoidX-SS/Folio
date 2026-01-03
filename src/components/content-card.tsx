@@ -45,6 +45,7 @@ import { Timestamp } from 'firebase/firestore';
 interface ContentCardProps {
   item: ContentItem;
   onDeleteItem: (id: string) => void;
+  onPinItem: (id: string, pinned: boolean) => void;
 }
 
 function formatDate(timestamp: any) {

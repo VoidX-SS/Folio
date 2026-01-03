@@ -4,12 +4,17 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { UploadCloud, Save, ArrowLeft, FileText, Code2 } from 'lucide-react';
+import { UploadCloud, Save, ArrowLeft, FileText, Code2, Loader2 } from 'lucide-react';
 import { Editor } from '@/components/editor';
 import { CodeEditor } from '@/components/code-editor';
 import { useRouter } from 'next/navigation';
 import type { CategorySlug, KnowledgeEntry } from '@/lib/types';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import mammoth from 'mammoth';
+import * as pdfjsLib from 'pdfjs-dist';
+
+// Set PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 interface ContentEditorFormProps {
     categorySlug: CategorySlug;
@@ -32,6 +37,7 @@ export function ContentEditorForm({
     const [content, setContent] = useState(initialData?.content || '');
     const [language, setLanguage] = useState<KnowledgeEntry['language'] | undefined>(initialData?.language);
     const [editorMode, setEditorMode] = useState<EditorMode>(initialData?.language ? 'code' : 'richtext');
+    const [isLoadingFile, setIsLoadingFile] = useState(false);
 
     const handleSubmit = async () => {
         if (!title.trim()) {
@@ -56,36 +62,80 @@ export function ContentEditorForm({
         const file = e.target.files?.[0];
         if (!file) return;
 
+        const fileName = file.name.toLowerCase();
         const textExtensions = ['.txt', '.js', '.ts', '.tsx', '.jsx', '.py', '.md', '.json', '.html', '.css', '.cs', '.lua', '.xml', '.yaml', '.yml', '.sql', '.sh', '.bash', '.ps1'];
-        const isTextFile = file.type.startsWith('text/') || textExtensions.some(ext => file.name.toLowerCase().endsWith(ext));
+        const isTextFile = file.type.startsWith('text/') || textExtensions.some(ext => fileName.endsWith(ext));
+        const isWordFile = fileName.endsWith('.docx');
+        const isPdfFile = fileName.endsWith('.pdf');
 
-        if (isTextFile) {
-            const text = await file.text();
-            setContent(text);
-            if (!title) setTitle(file.name.replace(/\.[^/.]+$/, '')); // Remove extension for title
+        setIsLoadingFile(true);
 
-            // Detect language and switch to code mode
-            const ext = file.name.split('.').pop()?.toLowerCase();
-            const langMap: Record<string, string> = {
-                'py': 'python',
-                'lua': 'lua',
-                'html': 'html',
-                'css': 'css',
-                'js': 'javascript',
-                'jsx': 'javascript',
-                'ts': 'typescript',
-                'tsx': 'typescript',
-                'cs': 'csharp',
-                'md': 'markdown',
-                'json': 'json',
-            };
+        try {
+            if (isTextFile) {
+                const text = await file.text();
+                setContent(text);
+                if (!title) setTitle(file.name.replace(/\.[^/.]+$/, ''));
 
-            if (ext && langMap[ext]) {
-                setLanguage(langMap[ext] as any);
-                setEditorMode('code');
+                // Detect language and switch to code mode
+                const ext = file.name.split('.').pop()?.toLowerCase();
+                const langMap: Record<string, string> = {
+                    'py': 'python',
+                    'lua': 'lua',
+                    'html': 'html',
+                    'css': 'css',
+                    'js': 'javascript',
+                    'jsx': 'javascript',
+                    'ts': 'typescript',
+                    'tsx': 'typescript',
+                    'cs': 'csharp',
+                    'md': 'markdown',
+                    'json': 'json',
+                };
+
+                if (ext && langMap[ext]) {
+                    setLanguage(langMap[ext] as any);
+                    setEditorMode('code');
+                }
+            } else if (isWordFile) {
+                // Handle Word documents using mammoth
+                const arrayBuffer = await file.arrayBuffer();
+                const result = await mammoth.convertToHtml({ arrayBuffer });
+                setContent(result.value);
+                setEditorMode('richtext');
+                if (!title) setTitle(file.name.replace(/\.[^/.]+$/, ''));
+            } else if (isPdfFile) {
+                // Handle PDF files using pdfjs-dist
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                let fullText = '';
+
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageText = textContent.items
+                        .map((item: any) => item.str)
+                        .join(' ');
+                    fullText += pageText + '\n\n';
+                }
+
+                // Convert plain text to basic HTML paragraphs
+                const htmlContent = fullText
+                    .split('\n\n')
+                    .filter(p => p.trim())
+                    .map(p => `<p>${p.trim()}</p>`)
+                    .join('');
+
+                setContent(htmlContent || fullText);
+                setEditorMode('richtext');
+                if (!title) setTitle(file.name.replace(/\.[^/.]+$/, ''));
+            } else {
+                alert('Định dạng file không được hỗ trợ. Hỗ trợ: .txt, .docx, .pdf, và các file code phổ biến.');
             }
-        } else {
-            alert("Hiện tại chỉ hỗ trợ đọc nội dung từ file text/code.");
+        } catch (error) {
+            console.error('Error reading file:', error);
+            alert('Có lỗi khi đọc file. Vui lòng thử lại.');
+        } finally {
+            setIsLoadingFile(false);
         }
     };
 
@@ -182,13 +232,19 @@ export function ContentEditorForm({
                                 type="file"
                                 className="hidden"
                                 id="file-upload"
+                                accept=".txt,.js,.ts,.tsx,.jsx,.py,.md,.json,.html,.css,.cs,.lua,.xml,.yaml,.yml,.sql,.docx,.pdf"
                                 onChange={handleFileUpload}
+                                disabled={isLoadingFile}
                             />
                             <Label htmlFor="file-upload" className="cursor-pointer">
-                                <Button variant="outline" size="sm" asChild className="pointer-events-none h-9">
+                                <Button variant="outline" size="sm" asChild className="pointer-events-none h-9" disabled={isLoadingFile}>
                                     <span>
-                                        <UploadCloud className="mr-2 h-4 w-4" />
-                                        Tải từ file
+                                        {isLoadingFile ? (
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        ) : (
+                                            <UploadCloud className="mr-2 h-4 w-4" />
+                                        )}
+                                        {isLoadingFile ? 'Đang tải...' : 'Tải file (.docx, .pdf, .txt)'}
                                     </span>
                                 </Button>
                             </Label>
