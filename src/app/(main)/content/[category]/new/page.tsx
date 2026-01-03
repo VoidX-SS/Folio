@@ -4,13 +4,12 @@ import { ContentEditorForm } from '@/components/content-editor-form';
 import { useFirestore } from '@/firebase';
 import { createItem } from '@/firebase/firestore/api';
 import { useRouter } from 'next/navigation';
-import type { CategorySlug } from '@/lib/types';
 import { useState, use } from 'react';
 
 // A constant user ID for the shared datastore.
 const SHARED_USER_ID = 'shared-user-main-datastore';
 
-export default function NewContentPage({ params }: { params: Promise<{ category: CategorySlug }> }) {
+export default function NewContentPage({ params }: { params: Promise<{ category: string }> }) {
     const { category } = use(params);
     const firestore = useFirestore();
     const router = useRouter();

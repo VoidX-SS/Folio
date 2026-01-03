@@ -1,20 +1,17 @@
 'use client';
 import { use } from 'react';
-import type { CategorySlug } from '@/lib/types';
-import { categories } from '@/lib/types';
 import { PageHeader } from '@/components/page-header';
 import { ContentCard } from '@/components/content-card';
-import { notFound } from 'next/navigation';
 import { useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where } from 'firebase/firestore';
+import { collection, query, where, orderBy } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
 import { deleteItem, pinItem } from '@/firebase/firestore/api';
 import type { KnowledgeEntry } from '@/lib/types';
-
+import type { DynamicCategory } from '@/lib/category-types';
 
 interface CategoryPageProps {
   params: Promise<{
-    category: CategorySlug;
+    category: string;
   }>;
 }
 
@@ -26,6 +23,22 @@ export default function CategoryPage({ params }: CategoryPageProps) {
   const firestore = useFirestore();
   const userId = SHARED_USER_ID;
 
+  // Fetch category info
+  const categoriesQuery = useMemoFirebase(
+    () =>
+      firestore && userId
+        ? query(
+          collection(firestore, 'users', userId, 'categories'),
+          where('slug', '==', category)
+        )
+        : null,
+    [firestore, userId, category]
+  );
+
+  const { data: categoryData } = useCollection<DynamicCategory>(categoriesQuery);
+  const categoryInfo = categoryData?.[0] || null;
+
+  // Fetch items for this category
   const itemsQuery = useMemoFirebase(
     () =>
       firestore && userId
@@ -39,12 +52,6 @@ export default function CategoryPage({ params }: CategoryPageProps) {
 
   const { data: items, isLoading: loading } =
     useCollection<KnowledgeEntry>(itemsQuery);
-
-  if (!Object.keys(categories).includes(category)) {
-    notFound();
-  }
-
-
 
   const handleDeleteItem = (id: string) => {
     if (firestore && userId) {
@@ -105,7 +112,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
 
   return (
     <div className="flex flex-col gap-8 p-4 sm:p-6 lg:p-8">
-      <PageHeader categorySlug={category} />
+      <PageHeader categorySlug={category} categoryInfo={categoryInfo} />
       {renderContent()}
     </div>
   );

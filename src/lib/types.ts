@@ -19,7 +19,7 @@ export type KnowledgeEntry = {
   userId: string;
   title: string;
   description: string;
-  type: CategorySlug;
+  type: string; // Dynamic category slug
   content: string;
   filePaths?: string[];
   links?: string[];

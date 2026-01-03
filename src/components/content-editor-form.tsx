@@ -8,12 +8,12 @@ import { UploadCloud, Save, ArrowLeft, FileText, Code2, Loader2 } from 'lucide-r
 import { Editor } from '@/components/editor';
 import { CodeEditor } from '@/components/code-editor';
 import { useRouter } from 'next/navigation';
-import type { CategorySlug, KnowledgeEntry } from '@/lib/types';
+import type { KnowledgeEntry } from '@/lib/types';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import mammoth from 'mammoth';
 
 interface ContentEditorFormProps {
-    categorySlug: CategorySlug;
+    categorySlug: string;
     initialData?: KnowledgeEntry;
     onSubmit: (data: Omit<KnowledgeEntry, 'id' | 'dateCreated' | 'dateModified' | 'userId'>) => Promise<void>;
     isSubmitting?: boolean;

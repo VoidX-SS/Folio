@@ -38,6 +38,11 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
+    // Allow public read/write access to the shared categories.
+    match /users/shared-user-main-datastore/categories/{categoryId} {
+      allow read, write: if true;
+    }
+
     // ----------------------------------------------------------------------
     // Helper Functions
     // ----------------------------------------------------------------------
