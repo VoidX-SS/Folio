@@ -10,8 +10,8 @@ import { CodeEditor } from '@/components/code-editor';
 import { useRouter } from 'next/navigation';
 import type { CategorySlug, KnowledgeEntry } from '@/lib/types';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { useFirebaseApp } from '@/firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { useStorage } from '@/firebase';
 
 interface ContentEditorFormProps {
     categorySlug: CategorySlug;
@@ -35,7 +35,7 @@ export function ContentEditorForm({
     const [language, setLanguage] = useState<KnowledgeEntry['language'] | undefined>(initialData?.language);
     const [editorMode, setEditorMode] = useState<EditorMode>(initialData?.language ? 'code' : 'richtext');
     const [isLoadingFile, setIsLoadingFile] = useState(false);
-    const firebaseApp = useFirebaseApp();
+    const storage = useStorage();
 
     const handleSubmit = async () => {
         if (!title.trim()) {
@@ -95,7 +95,6 @@ export function ContentEditorForm({
                     setEditorMode('code');
                 }
             } else if (isWordFile || isPdfFile) {
-                const storage = getStorage(firebaseApp);
                 const storageRef = ref(storage, `uploads/${Date.now()}_${file.name}`);
 
                 await uploadBytes(storageRef, file);
@@ -140,7 +139,7 @@ export function ContentEditorForm({
     };
 
     return (
-        <div className="w-full h-full px-6 py-6 space-y-6">
+        <div className="w-full min-w-0 px-4 sm:px-6 py-6 space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div className="flex items-center gap-3">
@@ -168,7 +167,7 @@ export function ContentEditorForm({
             </div>
 
             {/* Form */}
-            <div className="grid gap-6 bg-card p-6 rounded-xl border shadow-sm">
+            <div className="grid gap-6 bg-card p-4 sm:p-6 rounded-xl border shadow-sm w-full">
                 {/* Title and Description Row */}
                 <div className="grid gap-6 md:grid-cols-2">
                     <div className="grid gap-2">
