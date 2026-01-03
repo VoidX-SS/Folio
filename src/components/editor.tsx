@@ -6,6 +6,10 @@ import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
 import TextAlign from '@tiptap/extension-text-align';
 import Placeholder from '@tiptap/extension-placeholder';
+import Table from '@tiptap/extension-table';
+import TableRow from '@tiptap/extension-table-row';
+import TableCell from '@tiptap/extension-table-cell';
+import TableHeader from '@tiptap/extension-table-header';
 import {
   Bold,
   Italic,
@@ -29,6 +33,11 @@ import {
   Minus,
   MoreHorizontal,
   Square,
+  Table as TableIcon,
+  Plus,
+  Trash2,
+  RowsIcon,
+  Columns,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -127,6 +136,15 @@ export function Editor({ value, onChange, placeholder = 'Bắt đầu viết...'
       Placeholder.configure({
         placeholder,
       }),
+      Table.configure({
+        resizable: true,
+        HTMLAttributes: {
+          class: 'border-collapse table-auto w-full',
+        },
+      }),
+      TableRow,
+      TableHeader,
+      TableCell,
     ],
     content: value,
     editorProps: {
@@ -346,6 +364,72 @@ export function Editor({ value, onChange, placeholder = 'Bắt đầu viết...'
         >
           <Minus className="h-4 w-4" />
         </ToolbarButton>
+
+        <Separator orientation="vertical" className="h-6 mx-1" />
+
+        {/* Table Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`h-8 px-2 gap-1 ${editor.isActive('table') ? 'bg-muted text-primary' : ''}`}
+            >
+              <TableIcon className="h-4 w-4" />
+              <span className="text-xs">Bảng</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}>
+              <Plus className="h-4 w-4 mr-2" />
+              Chèn bảng 3x3
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => editor.chain().focus().insertTable({ rows: 4, cols: 4, withHeaderRow: true }).run()}>
+              <Plus className="h-4 w-4 mr-2" />
+              Chèn bảng 4x4
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => editor.chain().focus().addColumnAfter().run()}
+              disabled={!editor.can().addColumnAfter()}
+            >
+              <Columns className="h-4 w-4 mr-2" />
+              Thêm cột
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => editor.chain().focus().addRowAfter().run()}
+              disabled={!editor.can().addRowAfter()}
+            >
+              <RowsIcon className="h-4 w-4 mr-2" />
+              Thêm hàng
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => editor.chain().focus().deleteColumn().run()}
+              disabled={!editor.can().deleteColumn()}
+              className="text-destructive"
+            >
+              <Columns className="h-4 w-4 mr-2" />
+              Xóa cột
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => editor.chain().focus().deleteRow().run()}
+              disabled={!editor.can().deleteRow()}
+              className="text-destructive"
+            >
+              <RowsIcon className="h-4 w-4 mr-2" />
+              Xóa hàng
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => editor.chain().focus().deleteTable().run()}
+              disabled={!editor.can().deleteTable()}
+              className="text-destructive"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Xóa bảng
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         {/* Link */}
         <Popover>

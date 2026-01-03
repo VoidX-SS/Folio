@@ -10,8 +10,7 @@ import { CodeEditor } from '@/components/code-editor';
 import { useRouter } from 'next/navigation';
 import type { CategorySlug, KnowledgeEntry } from '@/lib/types';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { useStorage } from '@/firebase';
+import mammoth from 'mammoth';
 
 interface ContentEditorFormProps {
     categorySlug: CategorySlug;
@@ -35,7 +34,6 @@ export function ContentEditorForm({
     const [language, setLanguage] = useState<KnowledgeEntry['language'] | undefined>(initialData?.language);
     const [editorMode, setEditorMode] = useState<EditorMode>(initialData?.language ? 'code' : 'richtext');
     const [isLoadingFile, setIsLoadingFile] = useState(false);
-    const storage = useStorage();
 
     const handleSubmit = async () => {
         if (!title.trim()) {
@@ -94,36 +92,29 @@ export function ContentEditorForm({
                     setLanguage(langMap[ext] as any);
                     setEditorMode('code');
                 }
-            } else if (isWordFile || isPdfFile) {
-                const storageRef = ref(storage, `uploads/${Date.now()}_${file.name}`);
+            } else if (isWordFile) {
+                // Handle Word documents using mammoth - converts to HTML with tables
+                const arrayBuffer = await file.arrayBuffer();
+                const result = await mammoth.convertToHtml({ arrayBuffer });
 
-                await uploadBytes(storageRef, file);
-                const url = await getDownloadURL(storageRef);
-
-                const fileIcon = isWordFile ? '📄' : '📕';
-                const fileTypeLabel = isWordFile ? 'Word Document' : 'PDF Document';
-
-                // Create a nice looking card for the file
-                const fileCardHtml = `
-                    <blockquote>
-                        <p>
-                            ${fileIcon} <strong>${file.name}</strong> <span style="color: #666; font-size: 0.9em;">(${fileTypeLabel})</span><br>
-                            <a href="${url}" target="_blank" rel="noopener noreferrer">📥 Tải xuống file</a>
-                        </p>
-                    </blockquote>
-                    <p></p>
-                `;
-
-                // If content is empty, just set it. If not, append it.
-                setContent(prev => prev + fileCardHtml);
+                // mammoth returns HTML, set it directly
+                setContent(result.value);
                 setEditorMode('richtext');
                 if (!title) setTitle(file.name.replace(/\.[^/.]+$/, ''));
+
+                // Show any warnings from conversion
+                if (result.messages.length > 0) {
+                    console.log('Mammoth conversion messages:', result.messages);
+                }
+            } else if (isPdfFile) {
+                // PDF files not supported for direct conversion - inform user
+                alert('File PDF không hỗ trợ chuyển đổi trực tiếp. Vui lòng sử dụng file DOCX hoặc copy nội dung thủ công.');
             } else {
-                alert('Định dạng file không được hỗ trợ. Hỗ trợ: .txt, .docx, .pdf, và các file code phổ biến.');
+                alert('Định dạng file không được hỗ trợ. Hỗ trợ: .txt, .docx, và các file code phổ biến.');
             }
         } catch (error) {
-            console.error('Error reading/uploading file:', error);
-            alert('Có lỗi khi xử lý file. Vui lòng thử lại.');
+            console.error('Error reading file:', error);
+            alert('Có lỗi khi đọc file. Vui lòng thử lại.');
         } finally {
             setIsLoadingFile(false);
         }
