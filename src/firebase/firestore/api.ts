@@ -75,3 +75,24 @@ export function updateItem(
     errorEmitter.emit('permission-error', permissionError);
   });
 }
+
+export function pinItem(
+  db: Firestore,
+  userId: string,
+  itemId: string,
+  pinned: boolean
+) {
+  const itemRef = doc(db, 'users', userId, 'knowledgeEntries', itemId);
+  const updatedItem = {
+    pinned,
+    dateModified: serverTimestamp(),
+  };
+
+  updateDoc(itemRef, updatedItem).catch(async (serverError) => {
+    const permissionError = new FirestorePermissionError({
+      path: itemRef.path,
+      operation: 'update',
+    });
+    errorEmitter.emit('permission-error', permissionError);
+  });
+}

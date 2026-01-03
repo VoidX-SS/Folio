@@ -144,8 +144,8 @@ export function Editor({ value, onChange, placeholder = 'Bắt đầu viết...'
     content: value,
     editorProps: {
       attributes: {
-        class: 'min-h-[500px] w-full px-6 py-4 text-base focus:outline-none prose prose-base dark:prose-invert max-w-none break-words whitespace-pre-wrap overflow-wrap-anywhere',
-        style: `line-height: ${lineSpacing}; word-wrap: break-word; overflow-wrap: break-word;`,
+        class: 'min-h-[500px] w-full px-6 py-4 text-base focus:outline-none prose prose-base dark:prose-invert max-w-none',
+        style: `line-height: ${lineSpacing}; word-break: normal; overflow-wrap: break-word; white-space: pre-wrap;`,
         lang: 'vi',
         spellcheck: 'true',
       },
@@ -522,7 +522,7 @@ export function Editor({ value, onChange, placeholder = 'Bắt đầu viết...'
 
       {/* Editor Content */}
       <div className="min-h-[400px] relative overflow-x-hidden" style={{ maxWidth: '100%' }}>
-        <EditorContent editor={editor} className="h-full [&_.ProseMirror]:overflow-x-hidden [&_.ProseMirror]:max-w-full [&_.ProseMirror]:break-all" />
+        <EditorContent editor={editor} className="h-full [&_.ProseMirror]:overflow-x-hidden [&_.ProseMirror]:max-w-full" />
       </div>
     </div>
   );

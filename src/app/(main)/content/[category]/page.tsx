@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, use } from 'react';
+import { use } from 'react';
 import type { CategorySlug } from '@/lib/types';
 import { categories } from '@/lib/types';
 import { PageHeader } from '@/components/page-header';
@@ -8,7 +8,7 @@ import { notFound } from 'next/navigation';
 import { useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
-import { deleteItem } from '@/firebase/firestore/api';
+import { deleteItem, pinItem } from '@/firebase/firestore/api';
 import type { KnowledgeEntry } from '@/lib/types';
 
 
@@ -44,17 +44,28 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     notFound();
   }
 
-  const [editingItem, setEditingItem] = useState<KnowledgeEntry | null>(null);
 
-  const handleAddItem = () => {
-    // Replaced by direct link in PageHeader
-  };
 
   const handleDeleteItem = (id: string) => {
     if (firestore && userId) {
       deleteItem(firestore, userId, id);
     }
   };
+
+  const handlePinItem = (id: string, pinned: boolean) => {
+    if (firestore && userId) {
+      pinItem(firestore, userId, id, pinned);
+    }
+  };
+
+  // Sort items: pinned items first, then by original order
+  const sortedItems = items
+    ? [...items].sort((a, b) => {
+      const aPinned = a.pinned === true ? 1 : 0;
+      const bPinned = b.pinned === true ? 1 : 0;
+      return bPinned - aPinned; // Pinned items come first
+    })
+    : [];
 
   const renderContent = () => {
     if (loading) {
@@ -80,12 +91,12 @@ export default function CategoryPage({ params }: CategoryPageProps) {
 
     return (
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {items.map((item) => (
+        {sortedItems.map((item) => (
           <ContentCard
             key={item.id}
             item={item}
             onDeleteItem={handleDeleteItem}
-            onPinItem={() => { }}
+            onPinItem={handlePinItem}
           />
         ))}
       </div>

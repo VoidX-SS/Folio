@@ -67,14 +67,21 @@ function formatDate(timestamp: any) {
   return 'Đang chờ...';
 }
 
-export function ContentCard({ item, onDeleteItem }: ContentCardProps) {
+export function ContentCard({ item, onDeleteItem, onPinItem }: ContentCardProps) {
+  const isPinned = item.pinned === true;
+
   return (
-    <Card className="flex flex-col h-full group hover:shadow-md transition-shadow duration-200">
+    <Card className={`flex flex-col h-full group hover:shadow-md transition-all duration-200 ${isPinned ? 'ring-2 ring-primary/50 shadow-md' : ''}`}>
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
-          <CardTitle className="font-headline text-lg leading-tight line-clamp-2">
-            {item.title}
-          </CardTitle>
+          <div className="flex items-center gap-2 min-w-0">
+            {isPinned && (
+              <Pin className="h-4 w-4 text-primary shrink-0 fill-primary" />
+            )}
+            <CardTitle className="font-headline text-lg leading-tight line-clamp-2">
+              {item.title}
+            </CardTitle>
+          </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -86,6 +93,12 @@ export function ContentCard({ item, onDeleteItem }: ContentCardProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={() => onPinItem(item.id, !isPinned)}
+              >
+                <Pin className={`mr-2 h-4 w-4 ${isPinned ? 'fill-current' : ''}`} />
+                {isPinned ? 'Bỏ ghim' : 'Ghim lên đầu'}
+              </DropdownMenuItem>
               <Link href={`/content/${item.type}/${item.id}/edit`} passHref>
                 <DropdownMenuItem>
                   <Edit className="mr-2 h-4 w-4" />
