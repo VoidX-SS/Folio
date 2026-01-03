@@ -3,7 +3,7 @@ import { Lightbulb, FileText, FolderGit2 } from 'lucide-react';
 
 export default function DashboardPage() {
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8 p-4 sm:p-6 lg:p-8">
       <header>
         <h1 className="font-headline text-3xl font-bold tracking-tight">
           Bảng điều khiển
@@ -57,7 +57,7 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-       <Card>
+      <Card>
         <CardHeader>
           <CardTitle className="font-headline">Về Digital Folio</CardTitle>
         </CardHeader>
@@ -72,21 +72,21 @@ export default function DashboardPage() {
 }
 
 function BookOpenIcon(props: React.SVGProps<SVGSVGElement>) {
-    return (
-      <svg
-        {...props}
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-      </svg>
-    )
-  }
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+    </svg>
+  )
+}

@@ -16,12 +16,13 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from './ui/button';
 import {
-  MoreVertical,
-  Edit,
-  Trash2,
   Link as LinkIcon,
   Eye,
   Calendar,
+  Pin,
+  MoreVertical,
+  Edit,
+  Trash2,
 } from 'lucide-react';
 import { Badge } from './ui/badge';
 import Link from 'next/link';

@@ -10,11 +10,8 @@ import { CodeEditor } from '@/components/code-editor';
 import { useRouter } from 'next/navigation';
 import type { CategorySlug, KnowledgeEntry } from '@/lib/types';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import mammoth from 'mammoth';
-import * as pdfjsLib from 'pdfjs-dist';
-
-// Set PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { useFirebaseApp } from '@/firebase';
 
 interface ContentEditorFormProps {
     categorySlug: CategorySlug;
@@ -38,6 +35,7 @@ export function ContentEditorForm({
     const [language, setLanguage] = useState<KnowledgeEntry['language'] | undefined>(initialData?.language);
     const [editorMode, setEditorMode] = useState<EditorMode>(initialData?.language ? 'code' : 'richtext');
     const [isLoadingFile, setIsLoadingFile] = useState(false);
+    const firebaseApp = useFirebaseApp();
 
     const handleSubmit = async () => {
         if (!title.trim()) {
@@ -96,44 +94,37 @@ export function ContentEditorForm({
                     setLanguage(langMap[ext] as any);
                     setEditorMode('code');
                 }
-            } else if (isWordFile) {
-                // Handle Word documents using mammoth
-                const arrayBuffer = await file.arrayBuffer();
-                const result = await mammoth.convertToHtml({ arrayBuffer });
-                setContent(result.value);
-                setEditorMode('richtext');
-                if (!title) setTitle(file.name.replace(/\.[^/.]+$/, ''));
-            } else if (isPdfFile) {
-                // Handle PDF files using pdfjs-dist
-                const arrayBuffer = await file.arrayBuffer();
-                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-                let fullText = '';
+            } else if (isWordFile || isPdfFile) {
+                const storage = getStorage(firebaseApp);
+                const storageRef = ref(storage, `uploads/${Date.now()}_${file.name}`);
 
-                for (let i = 1; i <= pdf.numPages; i++) {
-                    const page = await pdf.getPage(i);
-                    const textContent = await page.getTextContent();
-                    const pageText = textContent.items
-                        .map((item: any) => item.str)
-                        .join(' ');
-                    fullText += pageText + '\n\n';
-                }
+                await uploadBytes(storageRef, file);
+                const url = await getDownloadURL(storageRef);
 
-                // Convert plain text to basic HTML paragraphs
-                const htmlContent = fullText
-                    .split('\n\n')
-                    .filter(p => p.trim())
-                    .map(p => `<p>${p.trim()}</p>`)
-                    .join('');
+                const fileIcon = isWordFile ? '📄' : '📕';
+                const fileTypeLabel = isWordFile ? 'Word Document' : 'PDF Document';
 
-                setContent(htmlContent || fullText);
+                // Create a nice looking card for the file
+                const fileCardHtml = `
+                    <blockquote>
+                        <p>
+                            ${fileIcon} <strong>${file.name}</strong> <span style="color: #666; font-size: 0.9em;">(${fileTypeLabel})</span><br>
+                            <a href="${url}" target="_blank" rel="noopener noreferrer">📥 Tải xuống file</a>
+                        </p>
+                    </blockquote>
+                    <p></p>
+                `;
+
+                // If content is empty, just set it. If not, append it.
+                setContent(prev => prev + fileCardHtml);
                 setEditorMode('richtext');
                 if (!title) setTitle(file.name.replace(/\.[^/.]+$/, ''));
             } else {
                 alert('Định dạng file không được hỗ trợ. Hỗ trợ: .txt, .docx, .pdf, và các file code phổ biến.');
             }
         } catch (error) {
-            console.error('Error reading file:', error);
-            alert('Có lỗi khi đọc file. Vui lòng thử lại.');
+            console.error('Error reading/uploading file:', error);
+            alert('Có lỗi khi xử lý file. Vui lòng thử lại.');
         } finally {
             setIsLoadingFile(false);
         }
@@ -149,7 +140,7 @@ export function ContentEditorForm({
     };
 
     return (
-        <div className="w-[95%] max-w-[1800px] mx-auto px-4 py-6 space-y-6">
+        <div className="w-full h-full px-6 py-6 space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div className="flex items-center gap-3">

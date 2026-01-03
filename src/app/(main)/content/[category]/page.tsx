@@ -85,6 +85,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
             key={item.id}
             item={item}
             onDeleteItem={handleDeleteItem}
+            onPinItem={() => { }}
           />
         ))}
       </div>
@@ -92,7 +93,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
   };
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8 p-4 sm:p-6 lg:p-8">
       <PageHeader categorySlug={category} />
       {renderContent()}
     </div>
