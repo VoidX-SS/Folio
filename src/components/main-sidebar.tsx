@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { CategoryManager, iconComponents } from '@/components/category-manager';
 import {
   BookOpen,
+  Dices,
   FileText,
   FlaskConical,
   LayoutDashboard,
@@ -161,7 +162,16 @@ export function MainSidebar() {
           </SidebarGroupLabel>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton disabled>Sắp ra mắt</SidebarMenuButton>
+              <SidebarMenuButton
+                asChild
+                isActive={pathname.startsWith('/playground/random-choose')}
+                tooltip="Chọn Ngẫu Nhiên"
+              >
+                <Link href="/playground/random-choose">
+                  <Dices />
+                  <span>Chọn Ngẫu Nhiên</span>
+                </Link>
+              </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
