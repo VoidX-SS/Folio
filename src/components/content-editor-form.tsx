@@ -130,9 +130,9 @@ export function ContentEditorForm({
     };
 
     return (
-        <div className="w-full min-w-0 px-4 sm:px-6 py-6 space-y-6">
-            {/* Header */}
-            <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex flex-col min-h-[calc(100vh-4rem)] p-4 sm:p-6 lg:p-8">
+            {/* Header - Sticky */}
+            <div className="flex items-center justify-between gap-4 flex-wrap mb-6 sticky top-0 z-20 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-4 bg-background/95 backdrop-blur-sm border-b">
                 <div className="flex items-center gap-3">
                     <Button
                         variant="ghost"
@@ -142,7 +142,7 @@ export function ContentEditorForm({
                     >
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
-                    <h1 className="text-2xl font-bold font-headline">
+                    <h1 className="text-xl sm:text-2xl font-bold font-headline">
                         {initialData ? 'Chỉnh sửa nội dung' : 'Tạo nội dung mới'}
                     </h1>
                 </div>
@@ -157,11 +157,11 @@ export function ContentEditorForm({
                 </Button>
             </div>
 
-            {/* Form */}
-            <div className="grid gap-6 bg-card p-4 sm:p-6 rounded-xl border shadow-sm w-full">
+            {/* Form - Full Width */}
+            <div className="flex-1 flex flex-col gap-6 bg-card p-4 sm:p-6 lg:p-8 rounded-xl border shadow-sm">
                 {/* Title and Description Row */}
-                <div className="grid gap-6 md:grid-cols-2">
-                    <div className="grid gap-2">
+                <div className="grid gap-4 sm:gap-6 sm:grid-cols-2">
+                    <div className="space-y-2">
                         <Label htmlFor="title" className="text-sm font-medium">
                             Tiêu đề <span className="text-destructive">*</span>
                         </Label>
@@ -170,10 +170,10 @@ export function ContentEditorForm({
                             placeholder="Nhập tiêu đề..."
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            className="h-11 text-base"
+                            className="h-12 text-base"
                         />
                     </div>
-                    <div className="grid gap-2">
+                    <div className="space-y-2">
                         <Label htmlFor="description" className="text-sm font-medium">
                             Mô tả ngắn
                         </Label>
@@ -182,28 +182,28 @@ export function ContentEditorForm({
                             placeholder="Mô tả ngắn gọn về nội dung..."
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            className="h-11"
+                            className="h-12"
                         />
                     </div>
                 </div>
 
-                {/* Content Area */}
-                <div className="grid gap-3">
+                {/* Content Area - Takes remaining space */}
+                <div className="flex-1 flex flex-col gap-3 min-h-0">
                     <div className="flex items-center justify-between flex-wrap gap-3">
                         <Label className="text-sm font-medium">
                             Nội dung <span className="text-destructive">*</span>
                         </Label>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2 sm:gap-3">
                             {/* Mode Toggle */}
                             <Tabs value={editorMode} onValueChange={handleModeChange}>
                                 <TabsList className="h-9">
                                     <TabsTrigger value="richtext" className="gap-1.5 px-3">
                                         <FileText className="h-4 w-4" />
-                                        Rich Text
+                                        <span className="hidden sm:inline">Rich Text</span>
                                     </TabsTrigger>
                                     <TabsTrigger value="code" className="gap-1.5 px-3">
                                         <Code2 className="h-4 w-4" />
-                                        Code
+                                        <span className="hidden sm:inline">Code</span>
                                     </TabsTrigger>
                                 </TabsList>
                             </Tabs>
@@ -225,24 +225,27 @@ export function ContentEditorForm({
                                         ) : (
                                             <UploadCloud className="mr-2 h-4 w-4" />
                                         )}
-                                        {isLoadingFile ? 'Đang tải...' : 'Tải file (.docx, .pdf, .txt)'}
+                                        <span className="hidden sm:inline">{isLoadingFile ? 'Đang tải...' : 'Tải file (.docx, .pdf, .txt)'}</span>
+                                        <span className="sm:hidden">{isLoadingFile ? '...' : 'Tải file'}</span>
                                     </span>
                                 </Button>
                             </Label>
                         </div>
                     </div>
 
-                    {/* Editor */}
-                    {editorMode === 'richtext' ? (
-                        <Editor value={content} onChange={setContent} />
-                    ) : (
-                        <CodeEditor
-                            value={content}
-                            onChange={setContent}
-                            language={language || 'javascript'}
-                            onLanguageChange={(lang) => setLanguage(lang as any)}
-                        />
-                    )}
+                    {/* Editor - Fills remaining space */}
+                    <div className="flex-1 min-h-[400px] sm:min-h-[500px]">
+                        {editorMode === 'richtext' ? (
+                            <Editor value={content} onChange={setContent} />
+                        ) : (
+                            <CodeEditor
+                                value={content}
+                                onChange={setContent}
+                                language={language || 'javascript'}
+                                onLanguageChange={(lang) => setLanguage(lang as any)}
+                            />
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

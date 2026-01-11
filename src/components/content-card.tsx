@@ -71,14 +71,16 @@ export function ContentCard({ item, onDeleteItem, onPinItem }: ContentCardProps)
   const isPinned = item.pinned === true;
 
   return (
-    <Card className={`flex flex-col h-full group hover:shadow-md transition-all duration-200 ${isPinned ? 'ring-2 ring-primary/50 shadow-md' : ''}`}>
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex items-center gap-2 min-w-0">
+    <Card className={`flex flex-col h-full group transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${isPinned ? 'ring-2 ring-primary/50 shadow-lg bg-primary/5' : 'hover:border-primary/30'}`}>
+      <CardHeader className="pb-3 flex-shrink-0">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-start gap-2 min-w-0 flex-1">
             {isPinned && (
-              <Pin className="h-4 w-4 text-primary shrink-0 fill-primary" />
+              <div className="shrink-0 mt-1">
+                <Pin className="h-4 w-4 text-primary fill-primary" />
+              </div>
             )}
-            <CardTitle className="font-headline text-lg leading-tight line-clamp-2">
+            <CardTitle className="font-headline text-base sm:text-lg leading-snug line-clamp-2">
               {item.title}
             </CardTitle>
           </div>
@@ -87,7 +89,7 @@ export function ContentCard({ item, onDeleteItem, onPinItem }: ContentCardProps)
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="h-8 w-8 shrink-0 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
               >
                 <MoreVertical className="h-4 w-4" />
               </Button>
@@ -115,15 +117,15 @@ export function ContentCard({ item, onDeleteItem, onPinItem }: ContentCardProps)
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <CardDescription className="line-clamp-2 mt-1">
+        <CardDescription className="line-clamp-2 mt-2 text-sm">
           {item.description}
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="flex-grow pb-3">
+      <CardContent className="flex-1 pb-3">
         <div className="flex items-center gap-2 flex-wrap">
           {item.language && (
-            <Badge variant="secondary" className="text-xs">
+            <Badge variant="secondary" className="text-xs font-medium">
               {item.language}
             </Badge>
           )}
@@ -138,43 +140,49 @@ export function ContentCard({ item, onDeleteItem, onPinItem }: ContentCardProps)
         </div>
       </CardContent>
 
-      <CardFooter className="pt-3 border-t flex items-center justify-between gap-2">
+      <CardFooter className="pt-3 border-t flex items-center justify-between gap-2 flex-shrink-0">
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <Calendar className="h-3.5 w-3.5" />
-          {formatDate(item.dateModified)}
+          <span className="hidden sm:inline">{formatDate(item.dateModified)}</span>
+          <span className="sm:hidden">{formatDate(item.dateModified)?.split(' ').slice(0, 2).join(' ')}</span>
         </div>
 
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="default" size="sm" className="h-8">
+            <Button variant="default" size="sm" className="h-8 px-3">
               <Eye className="mr-1.5 h-3.5 w-3.5" />
               Xem
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-            <DialogHeader className="shrink-0">
-              <DialogTitle className="font-headline text-xl">{item.title}</DialogTitle>
-              <DialogDescription className="text-sm">
+          <DialogContent className="w-[95vw] max-w-6xl h-[90vh] overflow-hidden flex flex-col">
+            {/* Compact Header */}
+            <DialogHeader className="shrink-0 pb-2 border-b">
+              <DialogTitle className="font-headline text-lg sm:text-xl pr-8">{item.title}</DialogTitle>
+              <DialogDescription className="text-xs">
                 {item.description}
               </DialogDescription>
             </DialogHeader>
-            <div className="flex-1 overflow-y-auto mt-4 bg-muted/30 rounded-lg p-6">
-              {item.language ? (
-                <CodeBlock
-                  language={item.language}
-                  value={item.content}
-                />
-              ) : (
-                <div
-                  className="prose prose-sm dark:prose-invert max-w-none leading-relaxed [&>p]:mb-4 [&>h1]:mb-4 [&>h2]:mb-3 [&>h3]:mb-2 [&>ul]:mb-4 [&>ol]:mb-4 [&>blockquote]:mb-4"
-                  style={{ lineHeight: '1.75' }}
-                  dangerouslySetInnerHTML={{ __html: item.content }}
-                />
-              )}
+            {/* Content takes maximum space */}
+            <div className="flex-1 overflow-y-auto py-3 min-h-0">
+              <div className="bg-muted/30 rounded-lg p-4 sm:p-6 h-full">
+                {item.language ? (
+                  <CodeBlock
+                    language={item.language}
+                    value={item.content}
+                  />
+                ) : (
+                  <div
+                    className="prose prose-sm sm:prose-base dark:prose-invert max-w-none leading-relaxed"
+                    style={{ lineHeight: '1.75' }}
+                    dangerouslySetInnerHTML={{ __html: item.content }}
+                  />
+                )}
+              </div>
             </div>
-            <div className="shrink-0 pt-4 border-t flex items-center justify-between">
-              <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-                <Calendar className="h-4 w-4" />
+            {/* Compact Footer */}
+            <div className="shrink-0 pt-2 border-t flex items-center justify-between gap-4 flex-wrap">
+              <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                <Calendar className="h-3.5 w-3.5" />
                 Cập nhật: {formatDate(item.dateModified)}
               </p>
               <Link href={`/content/${item.type}/${item.id}/edit`}>

@@ -1,6 +1,6 @@
 'use client';
 import { MainSidebar } from '@/components/main-sidebar';
-import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
+import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 
 export default function MainAppLayout({
   children,
@@ -12,9 +12,6 @@ export default function MainAppLayout({
       <div className="flex min-h-screen">
         <MainSidebar />
         <SidebarInset>
-          <header className="flex h-16 shrink-0 items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
-          </header>
           <div className="flex-1 w-full overflow-x-hidden">{children}</div>
         </SidebarInset>
       </div>

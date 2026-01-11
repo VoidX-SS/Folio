@@ -148,7 +148,7 @@ export function RandomChoose() {
     const currentItems = showAdvanced ? items : parseItems(inputText);
 
     return (
-        <div className="flex flex-col gap-6 max-w-2xl mx-auto">
+        <div className="flex flex-col gap-6 w-full max-w-4xl mx-auto">
             {/* Input Section */}
             <Card>
                 <CardHeader>

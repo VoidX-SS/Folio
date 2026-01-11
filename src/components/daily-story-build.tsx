@@ -148,11 +148,11 @@ export function DailyStoryBuild() {
 
   const handleClearStory = async () => {
     if (!firestore) return;
-    
+
     const confirmed = window.confirm(
       "Bạn có chắc muốn xóa toàn bộ câu chuyện? Hành động này không thể hoàn tác."
     );
-    
+
     if (confirmed) {
       await setDoc(
         doc(firestore, "users", SHARED_USER_ID, "playground", "daily-story"),
@@ -176,7 +176,7 @@ export function DailyStoryBuild() {
   }
 
   return (
-    <div className="flex flex-col gap-6 max-w-4xl mx-auto">
+    <div className="flex flex-col gap-6 w-full max-w-5xl mx-auto">
       {/* Story Display */}
       <Card className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5" />

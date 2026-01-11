@@ -8,6 +8,7 @@ import { useFirestore } from '@/firebase';
 import { deleteItem, pinItem } from '@/firebase/firestore/api';
 import type { KnowledgeEntry } from '@/lib/types';
 import type { DynamicCategory } from '@/lib/category-types';
+import { Loader2 } from 'lucide-react';
 
 interface CategoryPageProps {
   params: Promise<{
@@ -77,7 +78,8 @@ export default function CategoryPage({ params }: CategoryPageProps) {
   const renderContent = () => {
     if (loading) {
       return (
-        <div className="flex items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 bg-muted/20 py-20 text-center">
+        <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-muted-foreground/20 bg-muted/10 py-24 text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground mb-4" />
           <p className="text-muted-foreground">Đang tải nội dung...</p>
         </div>
       );
@@ -85,19 +87,24 @@ export default function CategoryPage({ params }: CategoryPageProps) {
 
     if (!items || items.length === 0) {
       return (
-        <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 bg-muted/20 py-20 text-center">
+        <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-muted-foreground/20 bg-muted/10 py-24 text-center">
+          <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mb-4">
+            <svg className="w-8 h-8 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+          </div>
           <h3 className="text-lg font-semibold text-foreground">
             Chưa có nội dung
           </h3>
-          <p className="text-muted-foreground mt-2">
-            Bắt đầu bằng cách thêm một mục mới.
+          <p className="text-muted-foreground mt-2 max-w-sm">
+            Bắt đầu bằng cách thêm một mục mới vào danh mục này.
           </p>
         </div>
       );
     }
 
     return (
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
         {sortedItems.map((item) => (
           <ContentCard
             key={item.id}
@@ -111,9 +118,11 @@ export default function CategoryPage({ params }: CategoryPageProps) {
   };
 
   return (
-    <div className="flex flex-col gap-8 p-4 sm:p-6 lg:p-8">
+    <div className="flex flex-col gap-6 sm:gap-8 p-4 sm:p-6 lg:p-8 min-h-[calc(100vh-4rem)]">
       <PageHeader categorySlug={category} categoryInfo={categoryInfo} />
-      {renderContent()}
+      <div className="flex-1">
+        {renderContent()}
+      </div>
     </div>
   );
 }
