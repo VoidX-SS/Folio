@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { CategoryManager, iconComponents } from '@/components/category-manager';
 import {
   BookOpen,
+  BookMarked,
   Dices,
   FileText,
   FlaskConical,
@@ -170,6 +171,18 @@ export function MainSidebar() {
                 <Link href="/playground/random-choose">
                   <Dices />
                   <span>Chọn Ngẫu Nhiên</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={pathname.startsWith('/playground/daily-story')}
+                tooltip="Xây Dựng Truyện"
+              >
+                <Link href="/playground/daily-story">
+                  <BookMarked />
+                  <span>Xây Dựng Truyện</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>

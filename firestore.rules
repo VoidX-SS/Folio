@@ -43,6 +43,11 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
+    // Allow public read/write access to the shared playground.
+    match /users/shared-user-main-datastore/playground/{docId} {
+      allow read, write: if true;
+    }
+
     // ----------------------------------------------------------------------
     // Helper Functions
     // ----------------------------------------------------------------------
